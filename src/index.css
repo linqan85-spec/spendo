@@ -30,6 +30,9 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
+    --success: 160 60% 45%;
+    --success-foreground: 0 0% 100%;
+
     --border: 220 13% 91%;
     --input: 220 13% 91%;
     --ring: 220 90% 56%;
@@ -44,6 +47,14 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 220 90% 56%;
+
+    /* Chart colors */
+    --chart-1: 220 90% 56%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 45 90% 55%;
+    --chart-4: 280 60% 55%;
+    --chart-5: 200 70% 50%;
+    --chart-6: 0 0% 60%;
   }
 
   .dark {
@@ -71,6 +82,9 @@
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 98%;
 
+    --success: 160 60% 35%;
+    --success-foreground: 0 0% 98%;
+
     --border: 220 20% 18%;
     --input: 220 20% 18%;
     --ring: 220 90% 60%;
@@ -83,6 +97,14 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 220 20% 18%;
     --sidebar-ring: 220 90% 60%;
+
+    /* Chart colors (dark) */
+    --chart-1: 220 90% 60%;
+    --chart-2: 160 60% 50%;
+    --chart-3: 45 90% 60%;
+    --chart-4: 280 60% 60%;
+    --chart-5: 200 70% 55%;
+    --chart-6: 0 0% 50%;
   }
 }
 
