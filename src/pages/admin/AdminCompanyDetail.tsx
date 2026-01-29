@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EditContractDialog } from '@/components/admin/EditContractDialog';
 import { 
   ArrowLeft,
   Building2, 
@@ -250,8 +251,20 @@ export default function AdminCompanyDetail() {
 
         {/* Company Details */}
         <Card>
-          <CardHeader>
-            <CardTitle>Företagsdetaljer</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Avtal & Prissättning</CardTitle>
+            <EditContractDialog
+              companyId={company.id}
+              initialValues={{
+                base_price_per_month: company.base_price_per_month,
+                extra_user_price: company.extra_user_price,
+                max_users_included: company.max_users_included,
+                max_manual_expenses: company.max_manual_expenses,
+                subscription_status: company.subscription_status,
+                trial_ends_at: company.trial_ends_at,
+              }}
+              onSuccess={fetchCompanyDetails}
+            />
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
