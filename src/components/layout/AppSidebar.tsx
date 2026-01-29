@@ -6,7 +6,8 @@ import {
   Settings,
   ChevronLeft,
   Menu,
-  Layers
+  Layers,
+  LogOut
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 const mainNavItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -43,6 +45,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const currentPath = location.pathname;
+  const { signOut } = useAuth();
 
   const isActive = (path: string) => {
     if (path === "/dashboard") return currentPath === "/dashboard";
@@ -150,23 +153,43 @@ export function AppSidebar() {
 
       <SidebarFooter className="border-t p-2">
         {collapsed && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-full h-10"
-            onClick={toggleSidebar}
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-full h-10"
+              onClick={toggleSidebar}
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-full h-10 text-muted-foreground hover:text-destructive"
+              onClick={signOut}
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         )}
         {!collapsed && (
-          <div className="px-3 py-2">
-            <p className="text-xs text-muted-foreground">
-              Teknikbolaget AB
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Trial · 14 dagar kvar
-            </p>
+          <div className="space-y-2">
+            <div className="px-3 py-2">
+              <p className="text-xs text-muted-foreground">
+                Teknikbolaget AB
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Trial · 14 dagar kvar
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3 px-3 text-muted-foreground hover:text-destructive"
+              onClick={signOut}
+            >
+              <LogOut className="h-4 w-4" />
+              Logga ut
+            </Button>
           </div>
         )}
       </SidebarFooter>
