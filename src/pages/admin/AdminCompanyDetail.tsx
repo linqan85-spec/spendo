@@ -50,17 +50,20 @@ export default function AdminCompanyDetail() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    // Wait for auth to fully load before making decisions
+    if (authLoading) return;
+
+    if (!user) {
       navigate('/login');
       return;
     }
 
-    if (!authLoading && !isSuperAdmin) {
+    if (!isSuperAdmin) {
       navigate('/dashboard');
       return;
     }
 
-    if (isSuperAdmin && companyId) {
+    if (companyId) {
       fetchCompanyDetails();
     }
   }, [user, isSuperAdmin, authLoading, companyId, navigate]);

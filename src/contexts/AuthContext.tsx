@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import type { AppRole } from '@/types/spendo';
@@ -11,6 +11,7 @@ interface AuthContextType {
   userRole: AppRole | null;
   companyId: string | null;
   signOut: () => Promise<void>;
+  checkSuperAdmin: (userId: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,60 +19,35 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isRoleLoading, setIsRoleLoading] = useState(true);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [userRole, setUserRole] = useState<AppRole | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Check user role - defer to avoid blocking
-          setTimeout(async () => {
-            await fetchUserRole(session.user.id);
-          }, 0);
-        } else {
-          setIsSuperAdmin(false);
-          setUserRole(null);
-          setCompanyId(null);
-        }
-        
-        setIsLoading(false);
-      }
-    );
-
-    // THEN get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        fetchUserRole(session.user.id);
-      }
-      
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const fetchUserRole = async (userId: string) => {
+  const checkSuperAdmin = useCallback(async (userId: string): Promise<boolean> => {
     try {
-      // First check if superadmin
       const { data: isSuperadmin } = await supabase.rpc('is_superadmin', { _user_id: userId });
       setIsSuperAdmin(!!isSuperadmin);
+      return !!isSuperadmin;
+    } catch (error) {
+      console.error('Error checking superadmin:', error);
+      return false;
+    }
+  }, []);
+
+  const fetchUserRole = useCallback(async (userId: string) => {
+    setIsRoleLoading(true);
+    try {
+      // First check if superadmin
+      await checkSuperAdmin(userId);
 
       // Get profile for company_id
       const { data: profile } = await supabase
         .from('profiles')
         .select('company_id')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
       
       if (profile?.company_id) {
         setCompanyId(profile.company_id);
@@ -82,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .select('role')
           .eq('user_id', userId)
           .eq('company_id', profile.company_id)
-          .single();
+          .maybeSingle();
         
         if (roleData) {
           setUserRole(roleData.role as AppRole);
@@ -90,8 +66,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('Error fetching user role:', error);
+    } finally {
+      setIsRoleLoading(false);
     }
-  };
+  }, [checkSuperAdmin]);
+
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Fetch role immediately (not deferred)
+          await fetchUserRole(session.user.id);
+        } else {
+          setIsSuperAdmin(false);
+          setUserRole(null);
+          setCompanyId(null);
+          setIsRoleLoading(false);
+        }
+        
+        setIsAuthLoading(false);
+      }
+    );
+
+    // THEN get initial session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        await fetchUserRole(session.user.id);
+      } else {
+        setIsRoleLoading(false);
+      }
+      
+      setIsAuthLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [fetchUserRole]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -100,7 +116,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsSuperAdmin(false);
     setUserRole(null);
     setCompanyId(null);
+    // Navigate to login after sign out
+    window.location.href = '/login';
   };
+
+  // Combined loading state - true if auth OR role is still loading
+  const isLoading = isAuthLoading || (!!user && isRoleLoading);
 
   return (
     <AuthContext.Provider value={{
@@ -111,6 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       userRole,
       companyId,
       signOut,
+      checkSuperAdmin,
     }}>
       {children}
     </AuthContext.Provider>

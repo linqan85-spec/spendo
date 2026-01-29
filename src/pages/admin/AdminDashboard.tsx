@@ -40,19 +40,23 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    // Wait for auth to fully load before making decisions
+    if (authLoading) return;
+
+    if (!user) {
       navigate('/login');
       return;
     }
 
-    if (!authLoading && !isSuperAdmin) {
+    // If we have a user but isSuperAdmin is still being determined,
+    // we need to wait. The AuthContext sets isSuperAdmin during fetchUserRole.
+    // Since authLoading is false, isSuperAdmin should be determined by now.
+    if (!isSuperAdmin) {
       navigate('/dashboard');
       return;
     }
 
-    if (isSuperAdmin) {
-      fetchCompanies();
-    }
+    fetchCompanies();
   }, [user, isSuperAdmin, authLoading, navigate]);
 
   const fetchCompanies = async () => {
