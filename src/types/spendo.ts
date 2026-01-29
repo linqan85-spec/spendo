@@ -1,9 +1,10 @@
 // Enums matching database
-export type AppRole = 'owner' | 'admin' | 'member';
+export type AppRole = 'owner' | 'admin' | 'member' | 'superadmin';
 export type ExpenseType = 'expense' | 'invoice';
 export type ExpenseCategory = 'saas' | 'resor' | 'kontor' | 'marknadsforing' | 'it_verktyg' | 'ovrigt';
 export type IntegrationStatus = 'active' | 'inactive' | 'error';
 export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'canceled' | 'unpaid';
+export type ExpenseSource = 'manual' | 'kleer';
 
 // Category display names in Swedish
 export const CATEGORY_LABELS: Record<ExpenseCategory, string> = {
@@ -34,6 +35,7 @@ export interface Company {
   base_price_per_month: number;
   extra_user_price: number;
   max_users_included: number;
+  max_manual_expenses: number;
   trial_ends_at: string | null;
   created_at: string;
   updated_at: string;
@@ -81,6 +83,8 @@ export interface Expense {
   category: ExpenseCategory;
   subcategory: string | null;
   is_recurring: boolean;
+  source: ExpenseSource;
+  is_trial_sample: boolean;
   created_at: string;
   updated_at: string;
   // Joined data

@@ -4,18 +4,27 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { mockExpenses, mockVendors } from "@/lib/mock-data";
-import { CATEGORY_LABELS, ExpenseCategory } from "@/types/spendo";
+import { mockExpenses, mockVendors, mockCompany } from "@/lib/mock-data";
+import { CATEGORY_LABELS, ExpenseCategory, Expense } from "@/types/spendo";
 import { useState, useMemo } from "react";
-import { Search, Receipt, FileText } from "lucide-react";
+import { Search, Receipt, FileText, Upload } from "lucide-react";
+import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Expenses() {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [localExpenses, setLocalExpenses] = useState<Expense[]>(mockExpenses);
+
+  // Count manual expenses for trial limit
+  const manualExpenseCount = useMemo(() => {
+    return localExpenses.filter(e => e.source === 'manual').length;
+  }, [localExpenses]);
 
   const filteredExpenses = useMemo(() => {
-    return mockExpenses.filter((expense) => {
+    return localExpenses.filter((expense) => {
       const matchesSearch = 
         expense.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         expense.vendor?.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -25,7 +34,63 @@ export default function Expenses() {
 
       return matchesSearch && matchesCategory && matchesType;
     });
-  }, [searchTerm, categoryFilter, typeFilter]);
+  }, [localExpenses, searchTerm, categoryFilter, typeFilter]);
+
+  const handleAddExpense = (data: {
+    vendor_name: string;
+    amount: number;
+    transaction_date: Date;
+    category: ExpenseCategory;
+    type: 'expense' | 'invoice';
+    description?: string;
+  }) => {
+    // Find or create vendor
+    let vendor = mockVendors.find(v => 
+      v.name.toLowerCase() === data.vendor_name.toLowerCase()
+    );
+    
+    if (!vendor) {
+      vendor = {
+        id: `v-manual-${Date.now()}`,
+        company_id: 'company-1',
+        name: data.vendor_name,
+        normalized_name: data.vendor_name.toLowerCase().replace(/\s+/g, '_'),
+        is_saas: data.category === 'saas',
+        default_category: data.category,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      mockVendors.push(vendor);
+    }
+
+    const newExpense: Expense = {
+      id: `exp-manual-${Date.now()}`,
+      company_id: 'company-1',
+      vendor_id: vendor.id,
+      external_id: null,
+      type: data.type,
+      amount: data.amount,
+      vat_amount: 0,
+      currency: 'SEK',
+      transaction_date: data.transaction_date.toISOString().split('T')[0],
+      description: data.description || null,
+      category: data.category,
+      subcategory: null,
+      is_recurring: false,
+      source: 'manual',
+      is_trial_sample: mockCompany.subscription_status === 'trialing',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      vendor,
+    };
+
+    setLocalExpenses(prev => [newExpense, ...prev]);
+    
+    toast({
+      title: "Utgift tillagd",
+      description: `${data.vendor_name} - ${formatCurrency(data.amount)}`,
+    });
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('sv-SE', {
@@ -46,11 +111,20 @@ export default function Expenses() {
   return (
     <AppLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Kostnader</h1>
-          <p className="text-muted-foreground">
-            Alla utlägg och leverantörsfakturor
-          </p>
+        {/* Header with Add button */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Kostnader</h1>
+            <p className="text-muted-foreground">
+              Alla utlägg och leverantörsfakturor
+            </p>
+          </div>
+          <AddExpenseDialog 
+            onAdd={handleAddExpense}
+            manualExpenseCount={manualExpenseCount}
+            maxManualExpenses={mockCompany.max_manual_expenses}
+            isTrialing={mockCompany.subscription_status === 'trialing'}
+          />
         </div>
 
         {/* Filters */}
@@ -103,6 +177,7 @@ export default function Expenses() {
                   <TableHead>Beskrivning</TableHead>
                   <TableHead>Kategori</TableHead>
                   <TableHead>Typ</TableHead>
+                  <TableHead>Källa</TableHead>
                   <TableHead className="text-right">Belopp</TableHead>
                 </TableRow>
               </TableHeader>
@@ -134,6 +209,18 @@ export default function Expenses() {
                           {expense.type === 'expense' ? 'Utlägg' : 'Faktura'}
                         </span>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      {expense.source === 'manual' ? (
+                        <Badge variant="secondary" className="text-xs">
+                          <Upload className="h-3 w-3 mr-1" />
+                          Manuell
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-xs">
+                          Kleer
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       {formatCurrency(expense.amount)}
