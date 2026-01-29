@@ -47,11 +47,21 @@ export default function Login() {
       }
 
       if (data.user) {
+        // Check if user is superadmin
+        const { data: isSuperadmin } = await supabase.rpc('is_superadmin', { 
+          _user_id: data.user.id 
+        });
+
         toast({
           title: "Välkommen tillbaka!",
           description: "Du är nu inloggad",
         });
-        navigate("/dashboard");
+
+        if (isSuperadmin) {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
       }
     } catch (error) {
       console.error("Login error:", error);
