@@ -38,3 +38,15 @@ export function useKleerIntegration() {
     refetch,
   };
 }
+
+export function useFortnoxIntegration() {
+  const { data: integrations, isLoading, refetch } = useIntegrations();
+
+  const fortnoxIntegration = integrations?.find((i) => i.provider === "fortnox") || null;
+
+  return {
+    integration: fortnoxIntegration,
+    isLoading,
+    refetch,
+  };
+}
