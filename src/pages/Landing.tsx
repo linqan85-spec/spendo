@@ -16,6 +16,7 @@ import {
   PieChart
 } from "lucide-react";
 import spendoLogo from "@/assets/spendo-logo.png";
+import spendoLogoFull from "@/assets/spendo-logo-full.png";
 
 export default function Landing() {
   return (
@@ -23,9 +24,8 @@ export default function Landing() {
       {/* Navigation */}
       <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src={spendoLogo} alt="Spendo" className="h-8 w-8" />
-            <span className="font-semibold text-xl">Spendo</span>
+          <div className="flex items-center">
+            <img src={spendoLogoFull} alt="Spendo" className="h-8" />
           </div>
           <div className="flex items-center gap-4">
             <Link to="/login">
@@ -360,9 +360,8 @@ export default function Landing() {
       <footer className="border-t py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <img src={spendoLogo} alt="Spendo" className="h-6 w-6" />
-              <span className="font-semibold">Spendo</span>
+            <div className="flex items-center">
+              <img src={spendoLogoFull} alt="Spendo" className="h-6" />
             </div>
             <p className="text-sm text-muted-foreground">
               © 2025 Spendo. Byggt i Sverige för svenska företag.
