@@ -7,7 +7,7 @@ import { ComingSoonIntegrationCard } from "@/components/integrations/Integration
 import { useKleerIntegration, useFortnoxIntegration } from "@/hooks/useIntegrations";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
-import kleerLogo from "@/assets/integrations/kleer-logo.ico";
+import kleerLogo from "@/assets/integrations/kleer-logo.png";
 import fortnoxLogo from "@/assets/integrations/fortnox-logo.ico";
 
 export default function Integration() {
