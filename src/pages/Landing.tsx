@@ -40,34 +40,39 @@ export default function Landing() {
       </nav>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 lg:py-32">
-        <div className="max-w-4xl mx-auto text-center">
-          <Badge variant="secondary" className="mb-6">
-            🇸🇪 Byggt för svenska företag
-          </Badge>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-            Sluta gissa var pengarna tar vägen
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Spendo samlar alla era utlägg, leverantörsfakturor och SaaS-kostnader på ett ställe. 
-            Varje månad får ni en tydlig rapport som visar exakt vad företaget spenderar på.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register">
-              <Button size="lg" className="w-full sm:w-auto gap-2">
-                Starta gratis provperiod
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link to="/login">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Se demo
-              </Button>
-            </Link>
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent" />
+        <div className="absolute top-20 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-primary/15 rounded-full blur-3xl" />
+        <div className="container mx-auto px-4 py-20 lg:py-32 relative">
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge variant="secondary" className="mb-6 bg-primary/10 text-primary border-primary/20">
+              🇸🇪 Byggt för svenska företag
+            </Badge>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+              Sluta gissa var pengarna tar vägen
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Spendo samlar alla era utlägg, leverantörsfakturor och SaaS-kostnader på ett ställe. 
+              Varje månad får ni en tydlig rapport som visar exakt vad företaget spenderar på.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/register">
+                <Button size="lg" className="w-full sm:w-auto gap-2">
+                  Starta gratis provperiod
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  Se demo
+                </Button>
+              </Link>
+            </div>
+            <p className="text-sm text-muted-foreground mt-4">
+              14 dagars gratis provperiod · Ingen betalning krävs
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground mt-4">
-            14 dagars gratis provperiod · Ingen betalning krävs
-          </p>
         </div>
       </section>
 
@@ -130,43 +135,43 @@ export default function Landing() {
       </section>
 
       {/* Solution Section */}
-      <section className="py-20">
+      <section className="py-20 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">
               Så fungerar Spendo
             </h2>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-primary-foreground/80">
               Tre steg till full kontroll över era kostnader
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="text-center">
-              <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                <Zap className="h-8 w-8 text-primary" />
+              <div className="h-16 w-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center mx-auto mb-6">
+                <Zap className="h-8 w-8 text-primary-foreground" />
               </div>
               <h3 className="text-xl font-semibold mb-3">1. Koppla Kleer</h3>
-              <p className="text-muted-foreground">
+              <p className="text-primary-foreground/80">
                 Anslut ert Kleer-konto med ett klick. Vi hämtar automatiskt alla 
                 leverantörsfakturor och utlägg.
               </p>
             </div>
             <div className="text-center">
-              <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                <Layers className="h-8 w-8 text-primary" />
+              <div className="h-16 w-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center mx-auto mb-6">
+                <Layers className="h-8 w-8 text-primary-foreground" />
               </div>
               <h3 className="text-xl font-semibold mb-3">2. Vi kategoriserar</h3>
-              <p className="text-muted-foreground">
+              <p className="text-primary-foreground/80">
                 Spendo identifierar automatiskt SaaS-tjänster, klassificerar kostnader 
                 och lär sig era mönster över tid.
               </p>
             </div>
             <div className="text-center">
-              <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                <BarChart3 className="h-8 w-8 text-primary" />
+              <div className="h-16 w-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center mx-auto mb-6">
+                <BarChart3 className="h-8 w-8 text-primary-foreground" />
               </div>
               <h3 className="text-xl font-semibold mb-3">3. Månadsrapport</h3>
-              <p className="text-muted-foreground">
+              <p className="text-primary-foreground/80">
                 Varje månad får ni en tydlig rapport med total spend, trender, 
                 top-leverantörer och alla SaaS-kostnader.
               </p>
@@ -335,17 +340,17 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20">
+      <section className="py-20 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-4">
               Redo att få kontroll över era kostnader?
             </h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="text-lg text-primary-foreground/80 mb-8">
               Starta gratis idag och se direkt var pengarna tar vägen.
             </p>
             <Link to="/register">
-              <Button size="lg" className="gap-2">
+              <Button size="lg" variant="secondary" className="gap-2">
                 Kom igång nu
                 <ArrowRight className="h-4 w-4" />
               </Button>
