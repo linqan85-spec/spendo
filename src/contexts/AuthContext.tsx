@@ -72,41 +72,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [checkSuperAdmin]);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Fetch role immediately (not deferred)
-          await fetchUserRole(session.user.id);
-        } else {
-          setIsSuperAdmin(false);
-          setUserRole(null);
-          setCompanyId(null);
-          setIsRoleLoading(false);
-        }
-        
-        setIsAuthLoading(false);
-      }
-    );
+    let isMounted = true;
+    let lastUserId: string | null = null;
 
-    // THEN get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchUserRole(session.user.id);
+    // Listener for ongoing auth changes.
+    // IMPORTANT: do NOT await async work here, it can block sign-in flows.
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (!isMounted) return;
+
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+
+      const nextUserId = nextSession?.user?.id ?? null;
+
+      if (nextUserId) {
+        if (nextUserId !== lastUserId) {
+          lastUserId = nextUserId;
+          void fetchUserRole(nextUserId);
+        }
       } else {
+        lastUserId = null;
+        setIsSuperAdmin(false);
+        setUserRole(null);
+        setCompanyId(null);
         setIsRoleLoading(false);
       }
-      
-      setIsAuthLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Initial load controls the global auth loading state.
+    const initializeAuth = async () => {
+      setIsAuthLoading(true);
+      try {
+        const {
+          data: { session: initialSession },
+        } = await supabase.auth.getSession();
+
+        if (!isMounted) return;
+
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
+
+        const initialUserId = initialSession?.user?.id ?? null;
+        lastUserId = initialUserId;
+
+        if (initialUserId) {
+          await fetchUserRole(initialUserId);
+        } else {
+          setIsRoleLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (isMounted) {
+          setIsRoleLoading(false);
+        }
+      } finally {
+        if (isMounted) setIsAuthLoading(false);
+      }
+    };
+
+    void initializeAuth();
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, [fetchUserRole]);
 
   const signOut = async () => {
