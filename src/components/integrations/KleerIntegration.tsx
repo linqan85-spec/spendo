@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface KleerIntegrationProps {
-  companyId: string;
+  companyId: string | null;
   integration: {
     id: string;
     status: string;
@@ -65,6 +65,14 @@ export function KleerIntegration({ companyId, integration, onRefresh }: KleerInt
       <div className="space-y-6">
         {status === "inactive" ? (
           <>
+            {!companyId && (
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 mb-4">
+                <p className="text-sm text-amber-600 dark:text-amber-400">
+                  Du måste vara kopplad till ett företag för att kunna ansluta Kleer.
+                </p>
+              </div>
+            )}
+
             <div className="bg-muted/50 rounded-lg p-4">
               <h4 className="font-medium mb-2">Så fungerar det</h4>
               <ol className="space-y-2 text-sm text-muted-foreground">
@@ -103,7 +111,13 @@ export function KleerIntegration({ companyId, integration, onRefresh }: KleerInt
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <ConnectKleerDialog companyId={companyId} onSuccess={onRefresh} />
+              {companyId ? (
+                <ConnectKleerDialog companyId={companyId} onSuccess={onRefresh} />
+              ) : (
+                <Button disabled className="gap-2">
+                  Anslut Kleer
+                </Button>
+              )}
               <Button variant="outline" className="gap-2" asChild>
                 <a href="https://api-doc.kleer.se/" target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-4 w-4" />
