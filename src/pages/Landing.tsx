@@ -15,6 +15,7 @@ import {
   CreditCard,
   PieChart
 } from "lucide-react";
+import spendoLogo from "@/assets/spendo-logo.png";
 
 export default function Landing() {
   return (
@@ -23,9 +24,7 @@ export default function Landing() {
       <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">S</span>
-            </div>
+            <img src={spendoLogo} alt="Spendo" className="h-8 w-8" />
             <span className="font-semibold text-xl">Spendo</span>
           </div>
           <div className="flex items-center gap-4">
@@ -212,9 +211,7 @@ export default function Landing() {
               </div>
               <div className="bg-card rounded-2xl border p-8 shadow-lg">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
-                    <span className="text-primary-foreground font-bold">S</span>
-                  </div>
+                  <img src={spendoLogo} alt="Spendo" className="h-12 w-12" />
                   <ArrowRight className="h-5 w-5 text-muted-foreground" />
                   <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center">
                     <Building2 className="h-6 w-6" />
@@ -364,9 +361,7 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div className="h-6 w-6 rounded bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xs">S</span>
-              </div>
+              <img src={spendoLogo} alt="Spendo" className="h-6 w-6" />
               <span className="font-semibold">Spendo</span>
             </div>
             <p className="text-sm text-muted-foreground">
