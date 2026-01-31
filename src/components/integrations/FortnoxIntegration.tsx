@@ -5,6 +5,7 @@ import { IntegrationCard, IntegrationStatus } from "./IntegrationCard";
 import { ConnectFortnoxDialog } from "./ConnectFortnoxDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import fortnoxLogo from "@/assets/integrations/fortnox-logo.ico";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -109,7 +110,7 @@ export function FortnoxIntegration({ companyId, integration, onRefresh }: Fortno
     <IntegrationCard
       name="Fortnox"
       description="Bokföring & fakturering"
-      icon={<span className="font-bold text-lg">F</span>}
+      icon={<img src={fortnoxLogo} alt="Fortnox" className="h-6 w-6 object-contain" />}
       status={status}
       lastSynced={integration?.last_synced_at}
       action={actionButton}

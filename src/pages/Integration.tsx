@@ -7,6 +7,8 @@ import { ComingSoonIntegrationCard } from "@/components/integrations/Integration
 import { useKleerIntegration, useFortnoxIntegration } from "@/hooks/useIntegrations";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
+import kleerLogo from "@/assets/integrations/kleer-logo.ico";
+import fortnoxLogo from "@/assets/integrations/fortnox-logo.ico";
 
 export default function Integration() {
   const { companyId, isLoading: isAuthLoading } = useAuth();
@@ -66,7 +68,7 @@ export default function Integration() {
                   <div className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="h-7 w-7 rounded bg-secondary flex items-center justify-center">
-                        <span className="font-bold text-xs">K</span>
+                        <img src={kleerLogo} alt="Kleer" className="h-4 w-4 object-contain" />
                       </div>
                       <div>
                         <p className="font-medium text-sm">Kleer</p>
@@ -87,7 +89,7 @@ export default function Integration() {
                   <div className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="h-7 w-7 rounded bg-secondary flex items-center justify-center">
-                        <span className="font-bold text-xs">F</span>
+                        <img src={fortnoxLogo} alt="Fortnox" className="h-4 w-4 object-contain" />
                       </div>
                       <div>
                         <p className="font-medium text-sm">Fortnox</p>
