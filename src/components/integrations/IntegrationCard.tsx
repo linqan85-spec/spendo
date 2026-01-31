@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertCircle, Loader2, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import vismaLogo from "@/assets/integrations/visma-logo.svg";
 
 export type IntegrationStatus = "active" | "inactive" | "error" | "connecting" | "coming_soon";
 
@@ -99,6 +100,11 @@ export function IntegrationCard({
   );
 }
 
+// Logo mapping for coming soon integrations
+const comingSoonLogos: Record<string, string> = {
+  Visma: vismaLogo,
+};
+
 // Simple coming soon card
 export function ComingSoonIntegrationCard({ 
   name, 
@@ -107,11 +113,19 @@ export function ComingSoonIntegrationCard({
   name: string; 
   description: string;
 }) {
+  const logo = comingSoonLogos[name];
+  
   return (
     <IntegrationCard
       name={name}
       description={description}
-      icon={<span className="font-bold text-muted-foreground">{name[0]}</span>}
+      icon={
+        logo ? (
+          <img src={logo} alt={name} className="h-6 w-6 object-contain" />
+        ) : (
+          <span className="font-bold text-muted-foreground">{name[0]}</span>
+        )
+      }
       status="coming_soon"
       compact
     />

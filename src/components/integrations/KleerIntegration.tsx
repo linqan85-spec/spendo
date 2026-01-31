@@ -5,6 +5,7 @@ import { IntegrationCard, IntegrationStatus } from "./IntegrationCard";
 import { ConnectKleerDialog } from "./ConnectKleerDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import kleerLogo from "@/assets/integrations/kleer-logo.ico";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -109,7 +110,7 @@ export function KleerIntegration({ companyId, integration, onRefresh }: KleerInt
     <IntegrationCard
       name="Kleer"
       description="Tidigare PE Accounting"
-      icon={<span className="font-bold text-lg">K</span>}
+      icon={<img src={kleerLogo} alt="Kleer" className="h-6 w-6 object-contain" />}
       status={status}
       lastSynced={integration?.last_synced_at}
       action={actionButton}
