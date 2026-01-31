@@ -3,9 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function useIntegrations() {
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ["integrations", user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -18,8 +18,13 @@ export function useIntegrations() {
       if (error) throw error;
       return data;
     },
-    enabled: !!user,
+    enabled: !!user && !isAuthLoading,
   });
+
+  return {
+    ...query,
+    isLoading: isAuthLoading || query.isLoading,
+  };
 }
 
 export function useKleerIntegration() {

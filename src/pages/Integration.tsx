@@ -4,29 +4,12 @@ import { RefreshCw, Loader2 } from "lucide-react";
 import { KleerIntegration } from "@/components/integrations/KleerIntegration";
 import { useKleerIntegration } from "@/hooks/useIntegrations";
 import { useAuth } from "@/contexts/AuthContext";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 export default function Integration() {
-  const { user } = useAuth();
-  
-  // Get user's company ID
-  const { data: profile } = useQuery({
-    queryKey: ["profile", user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("company_id")
-        .eq("id", user.id)
-        .single();
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user,
-  });
+  const { companyId, isLoading: isAuthLoading } = useAuth();
+  const { integration: kleerIntegration, isLoading: isIntegrationLoading, refetch } = useKleerIntegration();
 
-  const { integration: kleerIntegration, isLoading, refetch } = useKleerIntegration();
+  const isLoading = isAuthLoading || isIntegrationLoading;
 
   if (isLoading) {
     return (
@@ -37,8 +20,6 @@ export default function Integration() {
       </AppLayout>
     );
   }
-
-  const companyId = profile?.company_id;
 
   return (
     <AppLayout>
