@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import spendoLogo from "@/assets/spendo-logo.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -81,9 +82,7 @@ export default function Login() {
       <header className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center">
           <Link to="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">S</span>
-            </div>
+            <img src={spendoLogo} alt="Spendo" className="h-8 w-8" />
             <span className="font-semibold text-xl">Spendo</span>
           </Link>
         </div>

@@ -27,6 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import spendoLogo from "@/assets/spendo-logo.png";
 
 const mainNavItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -64,16 +65,12 @@ export function AppSidebar() {
         <div className="flex items-center justify-between">
           {!collapsed && (
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
-                S
-              </div>
+              <img src={spendoLogo} alt="Spendo" className="h-8 w-8" />
               <span className="font-semibold text-lg">Spendo</span>
             </div>
           )}
           {collapsed && (
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm mx-auto">
-              S
-            </div>
+            <img src={spendoLogo} alt="Spendo" className="h-8 w-8 mx-auto" />
           )}
           {!collapsed && (
             <Button
