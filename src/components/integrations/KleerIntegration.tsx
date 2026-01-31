@@ -5,7 +5,7 @@ import { IntegrationCard, IntegrationStatus } from "./IntegrationCard";
 import { ConnectKleerDialog } from "./ConnectKleerDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import kleerLogo from "@/assets/integrations/kleer-logo.ico";
+import kleerLogo from "@/assets/integrations/kleer-logo.png";
 import {
   AlertDialog,
   AlertDialogAction,
