@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, ExternalLink, RefreshCw, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { IntegrationCard, IntegrationStatus } from "./IntegrationCard";
 import { ConnectFortnoxDialog } from "./ConnectFortnoxDialog";
+import { FortnoxDemoDialog } from "./FortnoxDemoDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import fortnoxLogo from "@/assets/integrations/fortnox-logo.ico";
@@ -29,6 +30,7 @@ interface FortnoxIntegrationProps {
     id: string;
     status: string;
     last_synced_at: string | null;
+    access_token?: string | null;
   } | null;
   onRefresh: () => void;
 }
@@ -62,9 +64,14 @@ export function FortnoxIntegration({ companyId, integration, onRefresh }: Fortno
     toast.success("Synkronisering slutförd (demo)");
   };
 
+  const isDemo = integration?.access_token === "demo_mode";
+
   const actionButton = status === "inactive" ? (
     companyId ? (
-      <ConnectFortnoxDialog companyId={companyId} onSuccess={onRefresh} />
+      <div className="flex gap-2">
+        <ConnectFortnoxDialog companyId={companyId} onSuccess={onRefresh} />
+        <FortnoxDemoDialog companyId={companyId} onSuccess={onRefresh} />
+      </div>
     ) : (
       <Button disabled size="sm">Anslut</Button>
     )
