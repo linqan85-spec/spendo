@@ -76,15 +76,15 @@ export interface Expense {
   external_id: string | null;
   type: ExpenseType;
   amount: number;
-  vat_amount: number;
+  vat_amount: number | null;
   currency: string;
   transaction_date: string;
   description: string | null;
   category: ExpenseCategory;
   subcategory: string | null;
   is_recurring: boolean;
-  source: ExpenseSource;
-  is_trial_sample: boolean;
+  source?: ExpenseSource; // Optional - derived from external_id presence
+  is_trial_sample?: boolean; // Optional - not in DB schema
   created_at: string;
   updated_at: string;
   // Joined data

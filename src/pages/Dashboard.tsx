@@ -6,20 +6,21 @@ import { TopVendorsList } from "@/components/dashboard/TopVendorsList";
 import { SaaSList } from "@/components/dashboard/SaaSList";
 import { RecentExpenses } from "@/components/dashboard/RecentExpenses";
 import { MonthSelector } from "@/components/dashboard/MonthSelector";
-import { getMockDashboardData, getAvailableMonths } from "@/lib/mock-data";
-import { Receipt, FileText, Layers, TrendingUp } from "lucide-react";
+import { EmptyDashboard } from "@/components/dashboard/EmptyDashboard";
+import { WelcomeDialog, useWelcomeDialog } from "@/components/onboarding/WelcomeDialog";
+import { useDashboardData, useAvailableMonths } from "@/hooks/useDashboardData";
+import { Receipt, FileText, Layers, TrendingUp, Loader2 } from "lucide-react";
 
 const Index = () => {
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
 
-  const availableMonths = useMemo(() => getAvailableMonths(), []);
-  
-  const dashboardData = useMemo(
-    () => getMockDashboardData(selectedYear, selectedMonth),
-    [selectedYear, selectedMonth]
-  );
+  const { data: availableMonths = [], isLoading: isLoadingMonths } = useAvailableMonths();
+  const { data: dashboardData, isLoading: isLoadingData } = useDashboardData(selectedYear, selectedMonth);
+  const { showWelcome, setShowWelcome } = useWelcomeDialog();
+
+  const isLoading = isLoadingMonths || isLoadingData;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('sv-SE', {
@@ -33,6 +34,34 @@ const Index = () => {
     if (previous === null || previous === 0) return undefined;
     return ((current - previous) / previous) * 100;
   };
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // Show empty state if no data
+  if (!dashboardData?.hasData) {
+    return (
+      <AppLayout>
+        <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} />
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Översikt över dina kostnader och utgifter
+            </p>
+          </div>
+          <EmptyDashboard />
+        </div>
+      </AppLayout>
+    );
+  }
 
   const { currentMonth, previousMonth, categoryBreakdown, topVendors, topSaas, recentExpenses } = dashboardData;
 
@@ -55,6 +84,7 @@ const Index = () => {
 
   return (
     <AppLayout>
+      <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} />
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
