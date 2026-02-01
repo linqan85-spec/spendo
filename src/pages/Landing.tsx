@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import spendoLogo from "@/assets/spendo-logo.png";
 import spendoLogoFull from "@/assets/spendo-logo-full.png";
-import financeFrustration from "@/assets/finance-frustration.jpg";
+import financeHappy from "@/assets/finance-happy.jpg";
 
 export default function Landing() {
   return (
@@ -76,25 +76,15 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Frustration Image Section */}
-      <section className="py-12 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-              <img 
-                src={financeFrustration} 
-                alt="Frustrerad ekonomiavdelning som kämpar med pappersarbete och fakturor" 
-                className="w-full h-auto object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-8">
-                <p className="text-lg md:text-xl font-medium text-foreground max-w-2xl">
-                  "Vi spenderar timmar varje månad på att jaga fakturor och försöka förstå vad vi egentligen betalar för..."
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">— Ekonomiansvarig, svenskt tillväxtbolag</p>
-              </div>
-            </div>
-          </div>
+      {/* Happy Finance Team Section */}
+      <section className="w-full">
+        <div className="relative">
+          <img 
+            src={financeHappy} 
+            alt="Glad ekonomiavdelning med full kontroll över företagets kostnader" 
+            className="w-full h-48 md:h-64 lg:h-80 object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent" />
         </div>
       </section>
 
