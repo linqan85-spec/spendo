@@ -224,7 +224,7 @@ export default function Landing() {
               </div>
               <div className="bg-card rounded-2xl border p-8 shadow-lg">
                 <div className="flex items-center gap-4 mb-6">
-                  <img src={spendoLogo} alt="Spendo" className="h-12 w-12" />
+                  <img src={spendoLogo} alt="Spendo" className="h-10 w-auto" />
                   <ArrowRight className="h-5 w-5 text-muted-foreground" />
                   <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center">
                     <Building2 className="h-6 w-6" />
