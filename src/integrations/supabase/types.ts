@@ -471,7 +471,44 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      integrations_public: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          id: string | null
+          last_synced_at: string | null
+          provider: string | null
+          status: Database["public"]["Enums"]["integration_status"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          last_synced_at?: string | null
+          provider?: string | null
+          status?: Database["public"]["Enums"]["integration_status"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          last_synced_at?: string | null
+          provider?: string | null
+          status?: Database["public"]["Enums"]["integration_status"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       get_user_company_id: { Args: { _user_id: string }; Returns: string }
