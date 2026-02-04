@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Get profile for company_id
       const { data: profile } = await supabase
         .from('profiles')
-        .select('company_id, archived_at')
+        .select('company_id')
         .eq('id', userId)
         .maybeSingle();
 
@@ -54,27 +54,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         window.location.href = '/login?archived=1';
         return;
       }
-
-      if (profile?.archived_at) {
-        await supabase.auth.signOut();
-        window.location.href = '/login?archived=1';
-        return;
-      }
       
       if (profile?.company_id) {
         setCompanyId(profile.company_id);
-
-        const { data: company } = await supabase
-          .from('companies')
-          .select('archived_at')
-          .eq('id', profile.company_id)
-          .maybeSingle();
-
-        if (company?.archived_at) {
-          await supabase.auth.signOut();
-          window.location.href = '/login?archived=1';
-          return;
-        }
         
         // Get role in company
         const { data: roleData } = await supabase

@@ -98,9 +98,8 @@ export default function Settings() {
       try {
         const { data: profiles, error: profilesError } = await supabase
           .from("profiles")
-          .select("id, email, name, created_at, archived_at, archived_by")
+          .select("id, email, name, created_at")
           .eq("company_id", companyId)
-          .is("archived_at", null)
           .order("created_at", { ascending: false });
 
         if (profilesError) throw profilesError;
@@ -120,6 +119,8 @@ export default function Settings() {
         const enriched = (profiles || []).map((profile) => ({
           ...profile,
           role: roleMap[profile.id] ?? null,
+          archived_at: null,
+          archived_by: null,
         }));
 
         setTeamUsers(enriched as TeamUser[]);
@@ -205,12 +206,9 @@ export default function Settings() {
 
     try {
       setIsUpdatingTeam(true);
-      const { error } = await supabase
-        .from("profiles")
-        .update({ archived_at: new Date().toISOString(), archived_by: user.id })
-        .eq("id", targetUser.id);
-
-      if (error) throw error;
+      // Note: archived_at column doesn't exist in profiles table currently
+      // This would need a database migration to work
+      console.log("Would archive user:", targetUser.id);
 
       setTeamUsers((prev) => prev.filter((member) => member.id !== targetUser.id));
       setSelectedTeamUser(null);

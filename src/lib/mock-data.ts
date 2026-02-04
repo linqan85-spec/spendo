@@ -18,7 +18,6 @@ export const mockCompany: Company = {
   base_price_per_month: 499,
   extra_user_price: 99,
   max_users_included: 1,
-  max_manual_expenses: 20,
   trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),

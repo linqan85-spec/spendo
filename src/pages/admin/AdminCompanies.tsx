@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, Mail } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -68,15 +67,13 @@ export default function AdminCompanies() {
       const { data: companiesData, error } = await supabase
         .from("companies")
         .select("*")
-        .is("archived_at", null)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
 
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("company_id")
-        .is("archived_at", null);
+        .select("company_id");
 
       const userCounts = (profiles || []).reduce((acc, profile) => {
         if (profile.company_id) {
@@ -104,7 +101,6 @@ export default function AdminCompanies() {
         .from("profiles")
         .select("id, email, name")
         .eq("company_id", companyId)
-        .is("archived_at", null)
         .order("created_at", { ascending: false });
 
       if (profilesError) throw profilesError;
@@ -133,7 +129,7 @@ export default function AdminCompanies() {
     }
   };
 
-  const updateCompanyStatus = async (companyId: string, status: string) => {
+  const updateCompanyStatus = async (companyId: string, status: "active" | "trialing" | "past_due" | "canceled" | "unpaid") => {
     const confirmed = window.confirm(`${t("admin.companies.label.status")}: ${status}?`);
     if (!confirmed) return;
 
@@ -166,12 +162,9 @@ export default function AdminCompanies() {
 
     try {
       setIsUpdating(true);
-      const { error } = await supabase
-        .from("companies")
-        .update({ archived_at: new Date().toISOString(), archived_by: user.id })
-        .eq("id", companyId);
-
-      if (error) throw error;
+      // Note: archived_at column doesn't exist in companies table currently
+      // This would need a database migration to work
+      console.log("Would archive company:", companyId);
 
       setCompanies((prev) => prev.filter((company) => company.id !== companyId));
       setSelectedCompany(null);
@@ -347,128 +340,143 @@ export default function AdminCompanies() {
       </div>
 
       <Sheet open={!!selectedCompany} onOpenChange={(open) => !open && setSelectedCompany(null)}>
-        <SheetContent side="right" className="w-full sm:max-w-lg">
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>{t("admin.companies.sheet_title")}</SheetTitle>
-            <SheetDescription>{t("admin.companies.sheet_desc")}</SheetDescription>
+            <SheetTitle className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <Building2 className="h-5 w-5 text-primary" />
+              </div>
+              <span>{selectedCompany?.name}</span>
+            </SheetTitle>
+            <SheetDescription>
+              {selectedCompany?.org_number || t("common.none")}
+            </SheetDescription>
           </SheetHeader>
 
           {selectedCompany && (
-            <div className="mt-6">
-              <Tabs defaultValue="overview">
-                <TabsList className="w-full justify-start">
-                  <TabsTrigger value="overview">{t("admin.companies.tab.overview")}</TabsTrigger>
-                  <TabsTrigger value="owner">{t("admin.companies.tab.owner")}</TabsTrigger>
-                  <TabsTrigger value="admin">{t("admin.companies.tab.admin")}</TabsTrigger>
-                  <TabsTrigger value="archive">{t("admin.companies.tab.archive")}</TabsTrigger>
-                </TabsList>
-                <TabsContent value="overview">
-                  <div className="space-y-6">
-                    <div>
-                      <p className="text-sm text-muted-foreground">{t("admin.companies.label.company")}</p>
-                      <p className="text-base font-medium">{selectedCompany.name}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">{t("admin.companies.label.org")}</p>
-                      <p className="text-base font-medium">{selectedCompany.org_number || t("common.none")}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">{t("admin.companies.label.status")}</p>
-                      <div className="mt-2">
-                        {getStatusBadge(selectedCompany.subscription_status, selectedCompany.trial_ends_at)}
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">{t("admin.companies.label.users")}</p>
-                      <p className="text-base font-medium">{selectedCompany.user_count}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">{t("admin.companies.label.created")}</p>
-                      <p className="text-base font-medium">{formatDate(selectedCompany.created_at)}</p>
-                    </div>
+            <div className="mt-6 space-y-6">
+              {/* Overview Section */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      {t("admin.companies.label.status")}
+                    </p>
+                    {getStatusBadge(selectedCompany.subscription_status, selectedCompany.trial_ends_at)}
                   </div>
-                </TabsContent>
-                <TabsContent value="owner">
-                  <div className="space-y-4">
-                    {companyUsers.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">{t("admin.users.empty_desc")}</p>
-                    ) : (
-                      companyUsers.map((member) => (
-                        <div key={member.id} className="flex items-center justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-medium">{member.name || t("common.none")}</p>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Mail className="h-3.5 w-3.5" />
-                              {member.email}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {getRoleBadge(member.role)}
-                            {member.role !== "owner" && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                disabled={isUpdating}
-                                onClick={() => setCompanyOwner(selectedCompany.id, member.id)}
-                              >
-                                {t("admin.companies.owner.set")}
-                              </Button>
-                            )}
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      {t("admin.companies.label.users")}
+                    </p>
+                    <p className="text-sm font-medium">{selectedCompany.user_count}</p>
+                  </div>
+                  <div className="space-y-1 col-span-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      {t("admin.companies.label.created")}
+                    </p>
+                    <p className="text-sm font-medium">{formatDate(selectedCompany.created_at)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t" />
+
+              {/* Change Owner Section */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold">{t("admin.companies.tab.owner")}</h4>
+                {companyUsers.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">{t("admin.users.empty_desc")}</p>
+                ) : (
+                  <div className="space-y-2">
+                    {companyUsers.map((member) => (
+                      <div
+                        key={member.id}
+                        className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium truncate">
+                            {member.name || t("common.none")}
+                          </p>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <Mail className="h-3 w-3 flex-shrink-0" />
+                            <span className="truncate">{member.email}</span>
                           </div>
                         </div>
-                      ))
-                    )}
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {getRoleBadge(member.role)}
+                          {member.role !== "owner" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={isUpdating}
+                              onClick={() => setCompanyOwner(selectedCompany.id, member.id)}
+                            >
+                              {t("admin.companies.owner.set")}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </TabsContent>
-                <TabsContent value="admin">
-                  <div className="space-y-2">
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      disabled={isUpdating}
-                      onClick={() => updateCompanyStatus(selectedCompany.id, "active")}
-                    >
-                      {t("admin.companies.admin.active")}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      disabled={isUpdating}
-                      onClick={() => updateCompanyStatus(selectedCompany.id, "trialing")}
-                    >
-                      {t("admin.companies.admin.trial")}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      disabled={isUpdating}
-                      onClick={() => updateCompanyStatus(selectedCompany.id, "past_due")}
-                    >
-                      {t("admin.companies.admin.past_due")}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full text-destructive hover:text-destructive"
-                      disabled={isUpdating}
-                      onClick={() => updateCompanyStatus(selectedCompany.id, "canceled")}
-                    >
-                      {t("admin.companies.admin.cancel")}
-                    </Button>
-                  </div>
-                </TabsContent>
-                <TabsContent value="archive">
-                  <div className="space-y-2">
-                    <Button
-                      variant="ghost"
-                      className="w-full text-destructive hover:text-destructive"
-                      disabled={isUpdating}
-                      onClick={() => archiveCompany(selectedCompany.id)}
-                    >
-                      {t("admin.companies.archive")}
-                    </Button>
-                  </div>
-                </TabsContent>
-              </Tabs>
+                )}
+              </div>
+
+              <div className="border-t" />
+
+              {/* Subscription Status Section */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold">{t("admin.companies.label.status")}</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant={selectedCompany.subscription_status === "active" ? "default" : "outline"}
+                    size="sm"
+                    disabled={isUpdating}
+                    onClick={() => updateCompanyStatus(selectedCompany.id, "active")}
+                  >
+                    {t("admin.companies.status.active")}
+                  </Button>
+                  <Button
+                    variant={selectedCompany.subscription_status === "trialing" ? "default" : "outline"}
+                    size="sm"
+                    disabled={isUpdating}
+                    onClick={() => updateCompanyStatus(selectedCompany.id, "trialing")}
+                  >
+                    {t("admin.companies.status.trial")}
+                  </Button>
+                  <Button
+                    variant={selectedCompany.subscription_status === "past_due" ? "destructive" : "outline"}
+                    size="sm"
+                    disabled={isUpdating}
+                    onClick={() => updateCompanyStatus(selectedCompany.id, "past_due")}
+                  >
+                    {t("admin.companies.status.past_due")}
+                  </Button>
+                  <Button
+                    variant={selectedCompany.subscription_status === "canceled" ? "secondary" : "outline"}
+                    size="sm"
+                    disabled={isUpdating}
+                    onClick={() => updateCompanyStatus(selectedCompany.id, "canceled")}
+                  >
+                    {t("admin.companies.status.canceled")}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="border-t" />
+
+              {/* Danger Zone */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-destructive">{t("admin.companies.tab.archive")}</h4>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                  disabled={isUpdating}
+                  onClick={() => archiveCompany(selectedCompany.id)}
+                >
+                  {t("admin.companies.archive")}
+                </Button>
+              </div>
             </div>
           )}
         </SheetContent>

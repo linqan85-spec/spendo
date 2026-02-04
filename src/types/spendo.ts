@@ -35,10 +35,11 @@ export interface Company {
   base_price_per_month: number;
   extra_user_price: number;
   max_users_included: number;
-  max_manual_expenses: number;
   trial_ends_at: string | null;
   created_at: string;
   updated_at: string;
+  archived_at?: string | null;
+  archived_by?: string | null;
 }
 
 export interface Profile {
