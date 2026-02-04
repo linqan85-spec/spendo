@@ -9,7 +9,6 @@
   Layers,
   Shield,
   Users,
-  Archive,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -49,11 +48,6 @@ const adminNavItems = [
   { titleKey: "nav.admin_dashboard", url: "/admin", icon: Shield },
   { titleKey: "nav.companies", url: "/admin/companies", icon: Building2 },
   { titleKey: "nav.users", url: "/admin/users", icon: Users },
-];
-
-const adminArchiveItems = [
-  { titleKey: "nav.archived_companies", url: "/admin/archived-companies", icon: Archive },
-  { titleKey: "nav.archived_users", url: "/admin/archived-users", icon: Archive },
 ];
 
 export function AppSidebar() {
@@ -133,37 +127,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {isSuperAdmin && (
-          <SidebarGroup className="mt-4">
-            {!collapsed && (
-              <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-2 py-1.5">
-                {t("nav.archive")}
-              </SidebarGroupLabel>
-            )}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {adminArchiveItems.map((item) => (
-                  <SidebarMenuItem key={item.titleKey}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive(item.url)}
-                      tooltip={collapsed ? t(item.titleKey) : undefined}
-                    >
-                      <NavLink
-                        to={item.url}
-                        className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent"
-                        activeClassName="bg-accent text-accent-foreground"
-                      >
-                        <item.icon className="h-4 w-4 shrink-0" />
-                        {!collapsed && <span>{t(item.titleKey)}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
 
         {secondaryNavItems.length > 0 && (
           <SidebarGroup className="mt-4">

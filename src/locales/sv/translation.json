@@ -75,7 +75,7 @@
   "admin.users.spendo.admin": "Spendo Admin",
   "admin.users.spendo.support": "Spendo Support",
   "admin.users.spendo.none": "Ingen",
-
+  "admin.users.show_archived": "Visa arkiverade",
   "admin.companies.title": "Företag",
   "admin.companies.subtitle": "Alla aktiva företag",
   "admin.companies.card_title": "Företag",
@@ -104,7 +104,7 @@
   "admin.companies.admin.past_due": "Sätt som förfallen",
   "admin.companies.admin.cancel": "Avsluta abonnemang",
   "admin.companies.archive": "Arkivera företag",
-
+  "admin.companies.show_archived": "Visa arkiverade",
   "admin.companies.status.trial": "Trial",
   "admin.companies.status.active": "Aktiv",
   "admin.companies.status.past_due": "Förfallen",

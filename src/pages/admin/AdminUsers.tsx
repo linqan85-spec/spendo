@@ -9,7 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Mail, Users } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Mail, Users, Archive } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface UserProfile {
@@ -19,6 +21,7 @@ interface UserProfile {
   created_at: string;
   company_id: string | null;
   staff_role: "admin" | "support" | null;
+  archived_at: string | null;
 }
 
 export default function AdminUsers() {
@@ -28,7 +31,13 @@ export default function AdminUsers() {
   const [isLoading, setIsLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<(UserProfile & { companyName?: string; role?: string }) | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
   const { t } = useTranslation();
+
+  // Filter users based on archived state
+  const filteredUsers = users.filter((user) => 
+    showArchived ? user.archived_at !== null : user.archived_at === null
+  );
 
   useEffect(() => {
     if (authLoading) return;
@@ -50,7 +59,7 @@ export default function AdminUsers() {
     try {
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
-        .select("id, email, name, created_at, company_id")
+        .select("id, email, name, created_at, company_id, archived_at, staff_role")
         .order("created_at", { ascending: false });
 
       if (profilesError) throw profilesError;
@@ -75,7 +84,8 @@ export default function AdminUsers() {
 
       const enrichedUsers = (profiles || []).map((profile) => ({
         ...profile,
-        staff_role: null as UserProfile["staff_role"],
+        staff_role: profile.staff_role as UserProfile["staff_role"],
+        archived_at: profile.archived_at,
         companyName: profile.company_id ? companyMap[profile.company_id] : undefined,
         role: roleMap[profile.id],
       }));
@@ -192,16 +202,39 @@ export default function AdminUsers() {
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle>{t("admin.users.card_title")}</CardTitle>
-            <CardDescription>{t("admin.users.card_desc")}</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <div>
+              <CardTitle>{showArchived ? t("admin.archived_users.card_title") : t("admin.users.card_title")}</CardTitle>
+              <CardDescription>{showArchived ? t("admin.archived_users.card_desc") : t("admin.users.card_desc")}</CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                id="show-archived-users"
+                checked={showArchived}
+                onCheckedChange={setShowArchived}
+              />
+              <Label htmlFor="show-archived-users" className="text-sm text-muted-foreground flex items-center gap-1.5">
+                <Archive className="h-3.5 w-3.5" />
+                {t("admin.users.show_archived")}
+              </Label>
+            </div>
           </CardHeader>
           <CardContent>
-            {users.length === 0 ? (
+            {filteredUsers.length === 0 ? (
               <div className="text-center py-12">
-                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium">{t("admin.users.empty_title")}</h3>
-                <p className="text-muted-foreground">{t("admin.users.empty_desc")}</p>
+                {showArchived ? (
+                  <>
+                    <Archive className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium">{t("admin.archived_users.empty_title")}</h3>
+                    <p className="text-muted-foreground">{t("admin.archived_users.empty_desc")}</p>
+                  </>
+                ) : (
+                  <>
+                    <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium">{t("admin.users.empty_title")}</h3>
+                    <p className="text-muted-foreground">{t("admin.users.empty_desc")}</p>
+                  </>
+                )}
               </div>
             ) : (
               <Table>
@@ -215,13 +248,23 @@ export default function AdminUsers() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((userProfile) => (
+                  {filteredUsers.map((userProfile) => (
                     <TableRow
                       key={userProfile.id}
                       className="cursor-pointer hover:bg-muted/50"
                       onClick={() => setSelectedUser(userProfile)}
                     >
-                      <TableCell className="font-medium">{userProfile.name || t("common.none")}</TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          {userProfile.name || t("common.none")}
+                          {userProfile.archived_at && (
+                            <Badge variant="outline" className="text-muted-foreground">
+                              <Archive className="h-3 w-3 mr-1" />
+                              {t("common.archived")}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Mail className="h-3.5 w-3.5 text-muted-foreground" />
