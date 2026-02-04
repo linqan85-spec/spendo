@@ -68,37 +68,9 @@ export default function Login() {
 
         const { data: profile } = await supabase
           .from("profiles")
-          .select("company_id, archived_at")
+          .select("company_id")
           .eq("id", data.user.id)
           .maybeSingle();
-
-        if (profile?.archived_at) {
-          await supabase.auth.signOut();
-          toast({
-            title: t("login.archived_title"),
-            description: t("login.archived_desc"),
-            variant: "destructive",
-          });
-          return;
-        }
-
-        if (profile?.company_id) {
-          const { data: company } = await supabase
-            .from("companies")
-            .select("archived_at")
-            .eq("id", profile.company_id)
-            .maybeSingle();
-
-          if (company?.archived_at) {
-            await supabase.auth.signOut();
-            toast({
-              title: t("login.archived_title"),
-              description: t("login.archived_desc"),
-              variant: "destructive",
-            });
-            return;
-          }
-        }
 
         toast({
           title: t("login.welcome_title"),

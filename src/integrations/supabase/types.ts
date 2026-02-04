@@ -54,6 +54,8 @@ export type Database = {
       }
       companies: {
         Row: {
+          archived_at: string | null
+          archived_by: string | null
           base_price_per_month: number
           created_at: string
           currency: string
@@ -67,6 +69,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archived_at?: string | null
+          archived_by?: string | null
           base_price_per_month?: number
           created_at?: string
           currency?: string
@@ -80,6 +84,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archived_at?: string | null
+          archived_by?: string | null
           base_price_per_month?: number
           created_at?: string
           currency?: string
@@ -297,27 +303,36 @@ export type Database = {
       }
       profiles: {
         Row: {
+          archived_at: string | null
+          archived_by: string | null
           company_id: string | null
           created_at: string
           email: string
           id: string
           name: string | null
+          staff_role: Database["public"]["Enums"]["staff_role"] | null
           updated_at: string
         }
         Insert: {
+          archived_at?: string | null
+          archived_by?: string | null
           company_id?: string | null
           created_at?: string
           email: string
           id: string
           name?: string | null
+          staff_role?: Database["public"]["Enums"]["staff_role"] | null
           updated_at?: string
         }
         Update: {
+          archived_at?: string | null
+          archived_by?: string | null
           company_id?: string | null
           created_at?: string
           email?: string
           id?: string
           name?: string | null
+          staff_role?: Database["public"]["Enums"]["staff_role"] | null
           updated_at?: string
         }
         Relationships: [
@@ -481,6 +496,7 @@ export type Database = {
         | "ovrigt"
       expense_type: "expense" | "invoice"
       integration_status: "active" | "inactive" | "error"
+      staff_role: "admin" | "support"
       subscription_status:
         | "trialing"
         | "active"
@@ -625,6 +641,7 @@ export const Constants = {
       ],
       expense_type: ["expense", "invoice"],
       integration_status: ["active", "inactive", "error"],
+      staff_role: ["admin", "support"],
       subscription_status: [
         "trialing",
         "active",
