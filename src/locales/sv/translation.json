@@ -402,7 +402,7 @@
   "integrations.sync.button": "Synka",
   "integrations.sync.starting": "Synkronisering startar...",
   "integrations.sync.completed_demo": "Synkronisering slutförd (demo)",
-  "integrations.sync.unavailable": "Synk är inte tillgänglig förrän kopplingen är verifierad.",
+  "integrations.sync.unavailable": "Synkfunktionen är inte implementerad än. Data kommer snart synkas automatiskt.",
 
   "integrations.sync_status.title": "Synkstatus",
   "integrations.sync_status.active": "Aktiv",
