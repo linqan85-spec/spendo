@@ -72,7 +72,7 @@ export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogP
           .update({
             access_token: accessToken.trim(),
             refresh_token: kleerCompanyId.trim(),
-            status: "active",
+            status: "active" as const,
             last_synced_at: null,
           })
           .eq("id", existing.id);
@@ -81,13 +81,13 @@ export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogP
       } else {
         const { error: insertError } = await supabase
           .from("integrations")
-          .insert({
+          .insert([{
             company_id: companyId,
             provider: "kleer",
             access_token: accessToken.trim(),
             refresh_token: kleerCompanyId.trim(),
-            status: "active",
-          });
+            status: "active" as const,
+          }]);
 
         if (insertError) throw insertError;
       }
