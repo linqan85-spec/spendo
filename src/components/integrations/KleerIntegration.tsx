@@ -38,6 +38,8 @@ export function KleerIntegration({ companyId, integration, onRefresh }: KleerInt
   const { t } = useTranslation();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const status: IntegrationStatus = (integration?.status as IntegrationStatus) || "inactive";
+  const displayStatus: IntegrationStatus =
+    status === "active" && !integration?.last_synced_at ? "connecting" : status;
 
   const handleDisconnect = async () => {
     if (!integration) return;
@@ -59,8 +61,7 @@ export function KleerIntegration({ companyId, integration, onRefresh }: KleerInt
   };
 
   const handleSync = async () => {
-    toast.info(t("integrations.sync.starting"));
-    toast.success(t("integrations.sync.completed_demo"));
+    toast.error(t("integrations.sync.unavailable"));
   };
 
   const actionButton = status === "inactive" ? (
@@ -109,7 +110,7 @@ export function KleerIntegration({ companyId, integration, onRefresh }: KleerInt
       name="Kleer"
       description={t("integrations.kleer.description")}
       icon={<img src={kleerLogo} alt={t("integrations.kleer.name")} className="h-6 w-6 object-contain" />}
-      status={status}
+      status={displayStatus}
       lastSynced={integration?.last_synced_at}
       action={actionButton}
     >

@@ -402,6 +402,7 @@
   "integrations.sync.button": "Synka",
   "integrations.sync.starting": "Synkronisering startar...",
   "integrations.sync.completed_demo": "Synkronisering slutförd (demo)",
+  "integrations.sync.unavailable": "Synk är inte tillgänglig förrän kopplingen är verifierad.",
 
   "integrations.sync_status.title": "Synkstatus",
   "integrations.sync_status.active": "Aktiv",
@@ -431,6 +432,7 @@
   "integrations.kleer.connect.error_missing": "Fyll i både bolagsid och access token",
   "integrations.kleer.connect.error_failed": "Kunde inte ansluta Kleer. Kontrollera dina uppgifter och försök igen.",
   "integrations.kleer.connect.toast_success": "Kleer har anslutits!",
+  "integrations.kleer.connect.toast_pending": "Uppgifter sparade. Kopplingen verifieras innan synk aktiveras.",
   "integrations.kleer.connect.company_id": "Kleer Bolagsid",
   "integrations.kleer.connect.company_id_placeholder": "t.ex. 12345",
   "integrations.kleer.connect.company_id_hint": "Hittas i Kleer under Inställningar → Bolagsinformation",

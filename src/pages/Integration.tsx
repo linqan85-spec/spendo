@@ -19,8 +19,10 @@ export default function Integration() {
 
   const isLoading = isAuthLoading || isKleerLoading || isFortnoxLoading;
 
+  const isKleerLive = kleerIntegration?.status === "active" && !!kleerIntegration.last_synced_at;
+
   const activeIntegrations = [
-    kleerIntegration?.status === "active" ? kleerIntegration : null,
+    isKleerLive ? kleerIntegration : null,
     fortnoxIntegration?.status === "active" ? fortnoxIntegration : null,
   ].filter(Boolean);
 
@@ -64,7 +66,7 @@ export default function Integration() {
             <CardContent className="p-4">
               <h3 className="font-medium text-sm mb-3">{t("integrations.sync_status.title")}</h3>
               <div className="space-y-2">
-                {kleerIntegration?.status === "active" && (
+                {isKleerLive && kleerIntegration && (
                   <div className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="h-7 w-7 rounded bg-secondary flex items-center justify-center">

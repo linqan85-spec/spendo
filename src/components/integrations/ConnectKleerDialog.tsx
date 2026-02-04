@@ -53,7 +53,7 @@ export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogP
           .update({
             access_token: accessToken.trim(),
             refresh_token: kleerCompanyId.trim(),
-            status: "active",
+            status: "connecting",
             last_synced_at: null,
           })
           .eq("id", existing.id);
@@ -67,13 +67,13 @@ export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogP
             provider: "kleer",
             access_token: accessToken.trim(),
             refresh_token: kleerCompanyId.trim(),
-            status: "active",
+            status: "connecting",
           });
 
         if (insertError) throw insertError;
       }
 
-      toast.success(t("integrations.kleer.connect.toast_success"));
+      toast.info(t("integrations.kleer.connect.toast_pending"));
       setOpen(false);
       setKleerCompanyId("");
       setAccessToken("");
