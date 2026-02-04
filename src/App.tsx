@@ -16,8 +16,6 @@ import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminCompanies from "./pages/admin/AdminCompanies";
 import AdminUsers from "./pages/admin/AdminUsers";
-import AdminArchivedCompanies from "./pages/admin/AdminArchivedCompanies";
-import AdminArchivedUsers from "./pages/admin/AdminArchivedUsers";
 import AdminCompanyDetail from "./pages/admin/AdminCompanyDetail";
 import NotFound from "./pages/NotFound";
 
@@ -45,8 +43,6 @@ const App = () => (
             <Route path="/admin/companies" element={<AdminCompanies />} />
             <Route path="/admin/companies/:companyId" element={<AdminCompanyDetail />} />
             <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/archived-companies" element={<AdminArchivedCompanies />} />
-            <Route path="/admin/archived-users" element={<AdminArchivedUsers />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

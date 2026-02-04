@@ -9,7 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Building2, Mail } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Building2, Mail, Archive } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface CompanyWithStats {
@@ -39,7 +41,13 @@ export default function AdminCompanies() {
   const [selectedCompany, setSelectedCompany] = useState<CompanyWithStats | null>(null);
   const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const { t } = useTranslation();
+
+  // Filter companies based on archived state
+  const filteredCompanies = companies.filter((company) => 
+    showArchived ? company.archived_at !== null : company.archived_at === null
+  );
 
   useEffect(() => {
     if (authLoading) return;
@@ -296,16 +304,39 @@ export default function AdminCompanies() {
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle>{t("admin.companies.card_title")}</CardTitle>
-            <CardDescription>{t("admin.companies.card_desc")}</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <div>
+              <CardTitle>{showArchived ? t("admin.archived_companies.card_title") : t("admin.companies.card_title")}</CardTitle>
+              <CardDescription>{showArchived ? t("admin.archived_companies.card_desc") : t("admin.companies.card_desc")}</CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                id="show-archived"
+                checked={showArchived}
+                onCheckedChange={setShowArchived}
+              />
+              <Label htmlFor="show-archived" className="text-sm text-muted-foreground flex items-center gap-1.5">
+                <Archive className="h-3.5 w-3.5" />
+                {t("admin.companies.show_archived")}
+              </Label>
+            </div>
           </CardHeader>
           <CardContent>
-            {companies.length === 0 ? (
+            {filteredCompanies.length === 0 ? (
               <div className="text-center py-12">
-                <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium">{t("admin.companies.empty_title")}</h3>
-                <p className="text-muted-foreground">{t("admin.companies.empty_desc")}</p>
+                {showArchived ? (
+                  <>
+                    <Archive className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium">{t("admin.archived_companies.empty_title")}</h3>
+                    <p className="text-muted-foreground">{t("admin.archived_companies.empty_desc")}</p>
+                  </>
+                ) : (
+                  <>
+                    <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium">{t("admin.companies.empty_title")}</h3>
+                    <p className="text-muted-foreground">{t("admin.companies.empty_desc")}</p>
+                  </>
+                )}
               </div>
             ) : (
               <Table>
@@ -319,13 +350,23 @@ export default function AdminCompanies() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {companies.map((company) => (
+                  {filteredCompanies.map((company) => (
                     <TableRow
                       key={company.id}
                       className="cursor-pointer hover:bg-muted/50"
                       onClick={() => setSelectedCompany(company)}
                     >
-                      <TableCell className="font-medium">{company.name}</TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          {company.name}
+                          {company.archived_at && (
+                            <Badge variant="outline" className="text-muted-foreground">
+                              <Archive className="h-3 w-3 mr-1" />
+                              {t("common.archived")}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell className="text-muted-foreground">{company.org_number || t("common.none")}</TableCell>
                       <TableCell>{getStatusBadge(company.subscription_status, company.trial_ends_at)}</TableCell>
                       <TableCell>{company.user_count}</TableCell>
