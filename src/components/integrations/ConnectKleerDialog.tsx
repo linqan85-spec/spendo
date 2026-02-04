@@ -40,6 +40,25 @@ export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogP
     setError(null);
 
     try {
+      const { data: verification, error: verifyError } = await supabase.functions.invoke(
+        "kleer-verify",
+        {
+          body: {
+            accessToken: accessToken.trim(),
+            kleerCompanyId: kleerCompanyId.trim(),
+          },
+        }
+      );
+
+      if (verifyError || !verification?.ok) {
+        if (verification?.reason === "invalid_credentials" || verification?.reason === "invalid_company") {
+          setError(t("integrations.kleer.connect.error_invalid"));
+        } else {
+          setError(t("integrations.kleer.connect.error_verify"));
+        }
+        return;
+      }
+
       const { data: existing } = await supabase
         .from("integrations")
         .select("id")
@@ -53,7 +72,7 @@ export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogP
           .update({
             access_token: accessToken.trim(),
             refresh_token: kleerCompanyId.trim(),
-            status: "connecting",
+            status: "active",
             last_synced_at: null,
           })
           .eq("id", existing.id);
@@ -67,20 +86,20 @@ export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogP
             provider: "kleer",
             access_token: accessToken.trim(),
             refresh_token: kleerCompanyId.trim(),
-            status: "connecting",
+            status: "active",
           });
 
         if (insertError) throw insertError;
       }
 
-      toast.info(t("integrations.kleer.connect.toast_pending"));
+      toast.success(t("integrations.kleer.connect.toast_success"));
       setOpen(false);
       setKleerCompanyId("");
       setAccessToken("");
       onSuccess();
     } catch (err) {
       console.error("Error connecting Kleer:", err);
-      setError(t("integrations.kleer.connect.error_failed"));
+      setError(t("integrations.kleer.connect.error_verify"));
     } finally {
       setIsLoading(false);
     }
