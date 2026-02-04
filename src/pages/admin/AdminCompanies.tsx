@@ -44,9 +44,10 @@ export default function AdminCompanies() {
   const [showArchived, setShowArchived] = useState(false);
   const { t } = useTranslation();
 
-  // Filter companies based on archived state
-  const filteredCompanies = companies.filter((company) => 
-    showArchived ? company.archived_at !== null : company.archived_at === null
+  // Filter companies based on archived state.
+  // When showArchived is enabled, include both active and archived companies.
+  const filteredCompanies = companies.filter((company) =>
+    showArchived ? true : company.archived_at === null
   );
 
   useEffect(() => {
@@ -306,8 +307,8 @@ export default function AdminCompanies() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <div>
-              <CardTitle>{showArchived ? t("admin.archived_companies.card_title") : t("admin.companies.card_title")}</CardTitle>
-              <CardDescription>{showArchived ? t("admin.archived_companies.card_desc") : t("admin.companies.card_desc")}</CardDescription>
+              <CardTitle>{t("admin.companies.card_title")}</CardTitle>
+              <CardDescription>{t("admin.companies.card_desc")}</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Switch
@@ -324,19 +325,9 @@ export default function AdminCompanies() {
           <CardContent>
             {filteredCompanies.length === 0 ? (
               <div className="text-center py-12">
-                {showArchived ? (
-                  <>
-                    <Archive className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium">{t("admin.archived_companies.empty_title")}</h3>
-                    <p className="text-muted-foreground">{t("admin.archived_companies.empty_desc")}</p>
-                  </>
-                ) : (
-                  <>
-                    <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium">{t("admin.companies.empty_title")}</h3>
-                    <p className="text-muted-foreground">{t("admin.companies.empty_desc")}</p>
-                  </>
-                )}
+                <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium">{t("admin.companies.empty_title")}</h3>
+                <p className="text-muted-foreground">{t("admin.companies.empty_desc")}</p>
               </div>
             ) : (
               <Table>

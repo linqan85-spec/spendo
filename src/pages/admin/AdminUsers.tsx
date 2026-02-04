@@ -34,9 +34,10 @@ export default function AdminUsers() {
   const [showArchived, setShowArchived] = useState(false);
   const { t } = useTranslation();
 
-  // Filter users based on archived state
-  const filteredUsers = users.filter((user) => 
-    showArchived ? user.archived_at !== null : user.archived_at === null
+  // Filter users based on archived state.
+  // When showArchived is enabled, include both active and archived users.
+  const filteredUsers = users.filter((user) =>
+    showArchived ? true : user.archived_at === null
   );
 
   useEffect(() => {
@@ -204,8 +205,8 @@ export default function AdminUsers() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <div>
-              <CardTitle>{showArchived ? t("admin.archived_users.card_title") : t("admin.users.card_title")}</CardTitle>
-              <CardDescription>{showArchived ? t("admin.archived_users.card_desc") : t("admin.users.card_desc")}</CardDescription>
+              <CardTitle>{t("admin.users.card_title")}</CardTitle>
+              <CardDescription>{t("admin.users.card_desc")}</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Switch
@@ -222,19 +223,9 @@ export default function AdminUsers() {
           <CardContent>
             {filteredUsers.length === 0 ? (
               <div className="text-center py-12">
-                {showArchived ? (
-                  <>
-                    <Archive className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium">{t("admin.archived_users.empty_title")}</h3>
-                    <p className="text-muted-foreground">{t("admin.archived_users.empty_desc")}</p>
-                  </>
-                ) : (
-                  <>
-                    <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium">{t("admin.users.empty_title")}</h3>
-                    <p className="text-muted-foreground">{t("admin.users.empty_desc")}</p>
-                  </>
-                )}
+                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium">{t("admin.users.empty_title")}</h3>
+                <p className="text-muted-foreground">{t("admin.users.empty_desc")}</p>
               </div>
             ) : (
               <Table>
