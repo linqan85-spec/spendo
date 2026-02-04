@@ -1,19 +1,19 @@
-// Enums matching database
-export type AppRole = 'owner' | 'admin' | 'member' | 'superadmin';
+﻿// Enums matching database
+export type AppRole = 'owner' | 'admin' | 'member';
 export type ExpenseType = 'expense' | 'invoice';
 export type ExpenseCategory = 'saas' | 'resor' | 'kontor' | 'marknadsforing' | 'it_verktyg' | 'ovrigt';
 export type IntegrationStatus = 'active' | 'inactive' | 'error';
 export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'canceled' | 'unpaid';
 export type ExpenseSource = 'manual' | 'kleer';
 
-// Category display names in Swedish
-export const CATEGORY_LABELS: Record<ExpenseCategory, string> = {
-  saas: 'SaaS',
-  resor: 'Resor',
-  kontor: 'Kontor',
-  marknadsforing: 'Marknadsföring',
-  it_verktyg: 'IT/Verktyg',
-  ovrigt: 'Övrigt',
+// Category label translation keys
+export const CATEGORY_LABEL_KEYS: Record<ExpenseCategory, string> = {
+  saas: 'category.saas',
+  resor: 'category.resor',
+  kontor: 'category.kontor',
+  marknadsforing: 'category.marknadsforing',
+  it_verktyg: 'category.it_verktyg',
+  ovrigt: 'category.ovrigt',
 };
 
 // Category colors for charts
@@ -152,3 +152,4 @@ export interface DashboardFilters {
   category?: ExpenseCategory;
   type?: ExpenseType;
 }
+

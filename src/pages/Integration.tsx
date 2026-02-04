@@ -1,4 +1,4 @@
-import { AppLayout } from "@/components/layout/AppLayout";
+﻿import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { RefreshCw, Loader2 } from "lucide-react";
 import { KleerIntegration } from "@/components/integrations/KleerIntegration";
@@ -9,15 +9,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import kleerLogo from "@/assets/integrations/kleer-logo.png";
 import fortnoxLogo from "@/assets/integrations/fortnox-logo.ico";
+import { useTranslation } from "react-i18next";
 
 export default function Integration() {
+  const { t } = useTranslation();
   const { companyId, isLoading: isAuthLoading } = useAuth();
   const { integration: kleerIntegration, isLoading: isKleerLoading, refetch: refetchKleer } = useKleerIntegration();
   const { integration: fortnoxIntegration, isLoading: isFortnoxLoading, refetch: refetchFortnox } = useFortnoxIntegration();
 
   const isLoading = isAuthLoading || isKleerLoading || isFortnoxLoading;
 
-  // Count active integrations
   const activeIntegrations = [
     kleerIntegration?.status === "active" ? kleerIntegration : null,
     fortnoxIntegration?.status === "active" ? fortnoxIntegration : null,
@@ -37,13 +38,10 @@ export default function Integration() {
     <AppLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Integrationer</h1>
-          <p className="text-muted-foreground">
-            Anslut externa system för att automatiskt hämta data
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("integrations.title")}</h1>
+          <p className="text-muted-foreground">{t("integrations.subtitle")}</p>
         </div>
 
-        {/* Integrations Grid */}
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <KleerIntegration
             companyId={companyId}
@@ -55,33 +53,37 @@ export default function Integration() {
             integration={fortnoxIntegration}
             onRefresh={refetchFortnox}
           />
-          <ComingSoonIntegrationCard name="Visma" description="Ekonomisystem" />
+          <ComingSoonIntegrationCard
+            name={t("integrations.coming_soon.visma")}
+            description={t("integrations.coming_soon.accounting")}
+          />
         </div>
 
-        {/* Sync Status - only show if there are active integrations */}
         {activeIntegrations.length > 0 && (
           <Card>
             <CardContent className="p-4">
-              <h3 className="font-medium text-sm mb-3">Synkstatus</h3>
+              <h3 className="font-medium text-sm mb-3">{t("integrations.sync_status.title")}</h3>
               <div className="space-y-2">
                 {kleerIntegration?.status === "active" && (
                   <div className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="h-7 w-7 rounded bg-secondary flex items-center justify-center">
-                        <img src={kleerLogo} alt="Kleer" className="h-4 w-4 object-contain" />
+                        <img src={kleerLogo} alt={t("integrations.kleer.name")} className="h-4 w-4 object-contain" />
                       </div>
                       <div>
-                        <p className="font-medium text-sm">Kleer</p>
+                        <p className="font-medium text-sm">{t("integrations.kleer.name")}</p>
                         <p className="text-xs text-muted-foreground">
                           {kleerIntegration.last_synced_at
-                            ? `Senast: ${new Date(kleerIntegration.last_synced_at).toLocaleString("sv-SE")}`
-                            : "Ingen synk ännu"}
+                            ? t("integrations.sync_status.last_synced", {
+                                date: new Date(kleerIntegration.last_synced_at).toLocaleString("sv-SE"),
+                              })
+                            : t("integrations.sync_status.never")}
                         </p>
                       </div>
                     </div>
                     <Badge variant="default" className="gap-1 text-xs">
                       <RefreshCw className="h-3 w-3" />
-                      Aktiv
+                      {t("integrations.sync_status.active")}
                     </Badge>
                   </div>
                 )}
@@ -89,20 +91,22 @@ export default function Integration() {
                   <div className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="h-7 w-7 rounded bg-secondary flex items-center justify-center">
-                        <img src={fortnoxLogo} alt="Fortnox" className="h-4 w-4 object-contain" />
+                        <img src={fortnoxLogo} alt={t("integrations.fortnox.name")} className="h-4 w-4 object-contain" />
                       </div>
                       <div>
-                        <p className="font-medium text-sm">Fortnox</p>
+                        <p className="font-medium text-sm">{t("integrations.fortnox.name")}</p>
                         <p className="text-xs text-muted-foreground">
                           {fortnoxIntegration.last_synced_at
-                            ? `Senast: ${new Date(fortnoxIntegration.last_synced_at).toLocaleString("sv-SE")}`
-                            : "Ingen synk ännu"}
+                            ? t("integrations.sync_status.last_synced", {
+                                date: new Date(fortnoxIntegration.last_synced_at).toLocaleString("sv-SE"),
+                              })
+                            : t("integrations.sync_status.never")}
                         </p>
                       </div>
                     </div>
                     <Badge variant="default" className="gap-1 text-xs">
                       <RefreshCw className="h-3 w-3" />
-                      Aktiv
+                      {t("integrations.sync_status.active")}
                     </Badge>
                   </div>
                 )}

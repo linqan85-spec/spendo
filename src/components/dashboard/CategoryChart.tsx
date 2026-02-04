@@ -1,14 +1,16 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+﻿import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
-import { CategorySummary, CATEGORY_LABELS, CATEGORY_COLORS } from "@/types/spendo";
+import { useTranslation } from "react-i18next";
+import { CategorySummary, CATEGORY_LABEL_KEYS, CATEGORY_COLORS } from "@/types/spendo";
 
 interface CategoryChartProps {
   data: CategorySummary[];
 }
 
 export function CategoryChart({ data }: CategoryChartProps) {
-  const chartData = data.map(item => ({
-    name: CATEGORY_LABELS[item.category],
+  const { t } = useTranslation();
+  const chartData = data.map((item) => ({
+    name: t(CATEGORY_LABEL_KEYS[item.category]),
     value: Math.round(item.total_amount),
     category: item.category,
   }));
@@ -16,9 +18,9 @@ export function CategoryChart({ data }: CategoryChartProps) {
   const total = chartData.reduce((sum, item) => sum + item.value, 0);
 
   const formatValue = (value: number) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: 'SEK',
+    return new Intl.NumberFormat("sv-SE", {
+      style: "currency",
+      currency: "SEK",
       maximumFractionDigits: 0,
     }).format(value);
   };
@@ -30,7 +32,9 @@ export function CategoryChart({ data }: CategoryChartProps) {
   return (
     <Card className="col-span-1">
       <CardHeader>
-        <CardTitle className="text-base font-semibold">Spend per kategori</CardTitle>
+        <CardTitle className="text-base font-semibold">
+          {t("dashboard.category_chart.title")}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {chartData.length > 0 ? (
@@ -46,21 +50,21 @@ export function CategoryChart({ data }: CategoryChartProps) {
                 dataKey="value"
               >
                 {chartData.map((entry) => (
-                  <Cell 
-                    key={entry.category} 
-                    fill={CATEGORY_COLORS[entry.category]} 
+                  <Cell
+                    key={entry.category}
+                    fill={CATEGORY_COLORS[entry.category]}
                   />
                 ))}
               </Pie>
-              <Tooltip 
-                formatter={(value: number) => [formatValue(value), 'Belopp']}
+              <Tooltip
+                formatter={(value: number) => [formatValue(value), t("dashboard.category_chart.amount")]}
                 contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  borderColor: 'hsl(var(--border))',
-                  borderRadius: '8px',
+                  backgroundColor: "hsl(var(--card))",
+                  borderColor: "hsl(var(--border))",
+                  borderRadius: "8px",
                 }}
               />
-              <Legend 
+              <Legend
                 formatter={(value) => (
                   <span className="text-sm text-foreground">{value}</span>
                 )}
@@ -69,7 +73,7 @@ export function CategoryChart({ data }: CategoryChartProps) {
           </ResponsiveContainer>
         ) : (
           <div className="h-[280px] flex items-center justify-center text-muted-foreground">
-            Ingen data för vald period
+            {t("dashboard.category_chart.empty")}
           </div>
         )}
 
@@ -81,8 +85,8 @@ export function CategoryChart({ data }: CategoryChartProps) {
               .map((item) => (
                 <div key={item.category} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
+                    <div
+                      className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: CATEGORY_COLORS[item.category] }}
                     />
                     <span>{item.name}</span>

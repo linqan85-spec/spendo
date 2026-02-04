@@ -1,16 +1,18 @@
-import { AppLayout } from "@/components/layout/AppLayout";
+﻿import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useVendors, useExpenses } from "@/hooks/useExpensesData";
-import { CATEGORY_LABELS } from "@/types/spendo";
+import { CATEGORY_LABEL_KEYS } from "@/types/spendo";
 import { useState, useMemo } from "react";
 import { Search, Building2, Layers, Loader2, Plug, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Vendors() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data: vendors = [], isLoading: isLoadingVendors } = useVendors();
@@ -19,29 +21,31 @@ export default function Vendors() {
   const isLoading = isLoadingVendors || isLoadingExpenses;
 
   const vendorData = useMemo(() => {
-    return vendors.map(vendor => {
-      const vendorExpenses = expenses.filter(e => e.vendor_id === vendor.id);
-      const total = vendorExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
-      const transactions = vendorExpenses.length;
-      
-      return {
-        vendor,
-        total,
-        transactions,
-      };
-    }).sort((a, b) => b.total - a.total);
+    return vendors
+      .map((vendor) => {
+        const vendorExpenses = expenses.filter((e) => e.vendor_id === vendor.id);
+        const total = vendorExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+        const transactions = vendorExpenses.length;
+
+        return {
+          vendor,
+          total,
+          transactions,
+        };
+      })
+      .sort((a, b) => b.total - a.total);
   }, [vendors, expenses]);
 
   const filteredVendors = useMemo(() => {
-    return vendorData.filter((item) => 
+    return vendorData.filter((item) =>
       item.vendor.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [vendorData, searchTerm]);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: 'SEK',
+    return new Intl.NumberFormat("sv-SE", {
+      style: "currency",
+      currency: "SEK",
       maximumFractionDigits: 0,
     }).format(value);
   };
@@ -60,13 +64,10 @@ export default function Vendors() {
     <AppLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Leverantörer</h1>
-          <p className="text-muted-foreground">
-            Alla leverantörer och deras totala kostnader
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("vendors.title")}</h1>
+          <p className="text-muted-foreground">{t("vendors.subtitle")}</p>
         </div>
 
-        {/* Empty state */}
         {vendors.length === 0 ? (
           <Card className="border-primary/20 bg-primary/5">
             <CardContent className="py-12 text-center">
@@ -74,15 +75,15 @@ export default function Vendors() {
                 <Building2 className="h-8 w-8 text-primary" />
               </div>
               <h2 className="text-xl font-semibold mb-2">
-                Inga leverantörer ännu
+                {t("vendors.empty.title")}
               </h2>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Anslut ditt bokföringssystem för att automatiskt importera leverantörer och deras utgifter.
+                {t("vendors.empty.description")}
               </p>
               <Button asChild>
                 <Link to="/integration" className="gap-2">
                   <Plug className="h-4 w-4" />
-                  Anslut integration
+                  {t("vendors.empty.connect")}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
@@ -90,33 +91,31 @@ export default function Vendors() {
           </Card>
         ) : (
           <>
-            {/* Search */}
             <div className="relative max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Sök leverantör..."
+                placeholder={t("vendors.search.placeholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"
               />
             </div>
 
-            {/* Vendors Table */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-base font-semibold">
-                  {filteredVendors.length} leverantörer
+                  {t("vendors.table.count", { count: filteredVendors.length })}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Leverantör</TableHead>
-                      <TableHead>Kategori</TableHead>
-                      <TableHead>Typ</TableHead>
-                      <TableHead className="text-center">Transaktioner</TableHead>
-                      <TableHead className="text-right">Totalt</TableHead>
+                      <TableHead>{t("vendors.table.vendor")}</TableHead>
+                      <TableHead>{t("vendors.table.category")}</TableHead>
+                      <TableHead>{t("vendors.table.type")}</TableHead>
+                      <TableHead className="text-center">{t("vendors.table.transactions")}</TableHead>
+                      <TableHead className="text-right">{t("vendors.table.total")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -137,19 +136,21 @@ export default function Vendors() {
                         <TableCell>
                           {item.vendor.default_category ? (
                             <Badge variant="outline">
-                              {CATEGORY_LABELS[item.vendor.default_category]}
+                              {t(CATEGORY_LABEL_KEYS[item.vendor.default_category])}
                             </Badge>
                           ) : (
-                            <span className="text-muted-foreground">—</span>
+                            <span className="text-muted-foreground">{t("common.none")}</span>
                           )}
                         </TableCell>
                         <TableCell>
                           {item.vendor.is_saas ? (
                             <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
-                              SaaS
+                              {t("vendors.type.saas")}
                             </Badge>
                           ) : (
-                            <span className="text-muted-foreground text-sm">Engång</span>
+                            <span className="text-muted-foreground text-sm">
+                              {t("vendors.type.one_time")}
+                            </span>
                           )}
                         </TableCell>
                         <TableCell className="text-center">

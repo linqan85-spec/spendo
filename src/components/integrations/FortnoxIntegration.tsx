@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ExternalLink, RefreshCw, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { IntegrationCard, IntegrationStatus } from "./IntegrationCard";
@@ -23,6 +23,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { useTranslation } from "react-i18next";
 
 interface FortnoxIntegrationProps {
   companyId: string | null;
@@ -36,8 +37,9 @@ interface FortnoxIntegrationProps {
 }
 
 export function FortnoxIntegration({ companyId, integration, onRefresh }: FortnoxIntegrationProps) {
+  const { t } = useTranslation();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const status: IntegrationStatus = integration?.status as IntegrationStatus || "inactive";
+  const status: IntegrationStatus = (integration?.status as IntegrationStatus) || "inactive";
 
   const handleDisconnect = async () => {
     if (!integration) return;
@@ -50,21 +52,18 @@ export function FortnoxIntegration({ companyId, integration, onRefresh }: Fortno
 
       if (error) throw error;
 
-      toast.success("Fortnox har kopplats bort");
+      toast.success(t("integrations.fortnox.toast.disconnected"));
       onRefresh();
     } catch (err) {
       console.error("Error disconnecting:", err);
-      toast.error("Kunde inte koppla bort Fortnox");
+      toast.error(t("integrations.fortnox.toast.disconnect_failed"));
     }
   };
 
   const handleSync = async () => {
-    toast.info("Synkronisering startar...");
-    // TODO: Implement actual sync via edge function
-    toast.success("Synkronisering slutförd (demo)");
+    toast.info(t("integrations.sync.starting"));
+    toast.success(t("integrations.sync.completed_demo"));
   };
-
-  const isDemo = integration?.access_token === "demo_mode";
 
   const actionButton = status === "inactive" ? (
     companyId ? (
@@ -73,13 +72,13 @@ export function FortnoxIntegration({ companyId, integration, onRefresh }: Fortno
         <FortnoxDemoDialog companyId={companyId} onSuccess={onRefresh} />
       </div>
     ) : (
-      <Button disabled size="sm">Anslut</Button>
+      <Button disabled size="sm">{t("common.connect")}</Button>
     )
   ) : (
     <div className="flex gap-2">
       <Button onClick={handleSync} size="sm" className="gap-1.5">
         <RefreshCw className="h-3.5 w-3.5" />
-        Synka
+        {t("integrations.sync.button")}
       </Button>
       <AlertDialog>
         <AlertDialogTrigger asChild>
@@ -89,16 +88,13 @@ export function FortnoxIntegration({ companyId, integration, onRefresh }: Fortno
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Koppla bort Fortnox?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Din befintliga data kommer finnas kvar, men ingen ny data kommer synkas 
-              från Fortnox förrän du ansluter igen.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("integrations.fortnox.disconnect.title")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("integrations.fortnox.disconnect.description")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDisconnect}>
-              Koppla bort
+              {t("common.disconnect")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -107,17 +103,17 @@ export function FortnoxIntegration({ companyId, integration, onRefresh }: Fortno
   );
 
   const featuresList = [
-    "Leverantörsfakturor",
-    "Kundfakturor",
-    "Verifikationer",
-    "Bokföring",
+    t("integrations.fortnox.features.vendor_invoices"),
+    t("integrations.fortnox.features.customer_invoices"),
+    t("integrations.fortnox.features.vouchers"),
+    t("integrations.fortnox.features.accounting"),
   ];
 
   return (
     <IntegrationCard
       name="Fortnox"
-      description="Bokföring & fakturering"
-      icon={<img src={fortnoxLogo} alt="Fortnox" className="h-6 w-6 object-contain" />}
+      description={t("integrations.fortnox.description")}
+      icon={<img src={fortnoxLogo} alt={t("integrations.fortnox.name")} className="h-6 w-6 object-contain" />}
       status={status}
       lastSynced={integration?.last_synced_at}
       action={actionButton}
@@ -125,22 +121,20 @@ export function FortnoxIntegration({ companyId, integration, onRefresh }: Fortno
       <Collapsible open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <CollapsibleTrigger asChild>
           <Button variant="ghost" size="sm" className="w-full justify-between text-muted-foreground hover:text-foreground">
-            {isDetailsOpen ? "Dölj detaljer" : "Visa detaljer"}
+            {isDetailsOpen ? t("integrations.details.hide") : t("integrations.details.show")}
             {isDetailsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-4 space-y-4">
           {status === "inactive" && (
             <div className="bg-muted/50 rounded-lg p-3 text-sm">
-              <p className="font-medium mb-1">Så fungerar det:</p>
-              <p className="text-muted-foreground">
-                1. Skapa app på Developer Portal → 2. Anslut här → 3. Data synkas automatiskt
-              </p>
+              <p className="font-medium mb-1">{t("integrations.how_it_works")}</p>
+              <p className="text-muted-foreground">{t("integrations.fortnox.how_to")}</p>
             </div>
           )}
 
           <div>
-            <p className="text-sm font-medium mb-2">Vad som hämtas:</p>
+            <p className="text-sm font-medium mb-2">{t("integrations.fortnox.data_title")}</p>
             <div className="flex flex-wrap gap-2">
               {featuresList.map((item, i) => (
                 <span key={i} className="inline-flex items-center gap-1 text-xs bg-muted px-2 py-1 rounded">
@@ -154,7 +148,7 @@ export function FortnoxIntegration({ companyId, integration, onRefresh }: Fortno
           <Button variant="link" size="sm" className="p-0 h-auto text-xs" asChild>
             <a href="https://api.fortnox.se/apidocs" target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-3 w-3 mr-1" />
-              API-dokumentation
+              {t("integrations.fortnox.docs")}
             </a>
           </Button>
         </CollapsibleContent>

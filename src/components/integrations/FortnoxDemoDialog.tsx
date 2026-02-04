@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Play, CheckCircle2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface FortnoxDemoDialogProps {
   companyId: string;
@@ -29,6 +30,8 @@ const DEMO_VENDORS = [
   { name: "Figma", is_saas: true, default_category: "saas" as const },
 ];
 
+type DemoProgress = "create_vendors" | "create_expenses" | "activate" | "";
+
 function generateDemoExpenses(vendorIds: Record<string, string>, companyId: string) {
   const expenses: Array<{
     company_id: string;
@@ -44,11 +47,9 @@ function generateDemoExpenses(vendorIds: Record<string, string>, companyId: stri
 
   const now = new Date();
 
-  // Generate 3 months of data
   for (let monthOffset = 0; monthOffset < 3; monthOffset++) {
     const month = new Date(now.getFullYear(), now.getMonth() - monthOffset, 1);
-    
-    // Microsoft 365 - monthly subscription
+
     expenses.push({
       company_id: companyId,
       vendor_id: vendorIds["Microsoft 365"],
@@ -61,20 +62,18 @@ function generateDemoExpenses(vendorIds: Record<string, string>, companyId: stri
       currency: "SEK",
     });
 
-    // Slack
     expenses.push({
       company_id: companyId,
       vendor_id: vendorIds["Slack"],
       amount: 890,
       category: "saas",
-      description: "Slack Pro - 5 användare",
+      description: "Slack Pro - 5 users",
       transaction_date: new Date(month.getFullYear(), month.getMonth(), 1).toISOString().split("T")[0],
       type: "invoice",
       is_recurring: true,
       currency: "SEK",
     });
 
-    // Adobe
     expenses.push({
       company_id: companyId,
       vendor_id: vendorIds["Adobe Creative Cloud"],
@@ -87,7 +86,6 @@ function generateDemoExpenses(vendorIds: Record<string, string>, companyId: stri
       currency: "SEK",
     });
 
-    // Figma
     expenses.push({
       company_id: companyId,
       vendor_id: vendorIds["Figma"],
@@ -100,27 +98,25 @@ function generateDemoExpenses(vendorIds: Record<string, string>, companyId: stri
       currency: "SEK",
     });
 
-    // AWS - varying amounts
     expenses.push({
       company_id: companyId,
       vendor_id: vendorIds["AWS"],
       amount: 2500 + Math.floor(Math.random() * 1000),
       category: "it_verktyg",
-      description: "AWS molntjänster",
+      description: "AWS cloud services",
       transaction_date: new Date(month.getFullYear(), month.getMonth(), 28).toISOString().split("T")[0],
       type: "invoice",
       is_recurring: true,
       currency: "SEK",
     });
 
-    // Kontorsmaterial
     if (monthOffset === 0 || monthOffset === 2) {
       expenses.push({
         company_id: companyId,
         vendor_id: vendorIds["Kontorsmaterial AB"],
         amount: 1850 + Math.floor(Math.random() * 500),
         category: "kontor",
-        description: "Kontorsmaterial och förbrukning",
+        description: "Office supplies",
         transaction_date: new Date(month.getFullYear(), month.getMonth(), 12).toISOString().split("T")[0],
         type: "invoice",
         is_recurring: false,
@@ -128,26 +124,24 @@ function generateDemoExpenses(vendorIds: Record<string, string>, companyId: stri
       });
     }
 
-    // SJ resor
     expenses.push({
       company_id: companyId,
       vendor_id: vendorIds["SJ"],
       amount: 450 + Math.floor(Math.random() * 300),
       category: "resor",
-      description: "Tjänsteresor Stockholm-Göteborg",
+      description: "Business travel Stockholm-Gothenburg",
       transaction_date: new Date(month.getFullYear(), month.getMonth(), 8).toISOString().split("T")[0],
       type: "expense",
       is_recurring: false,
       currency: "SEK",
     });
 
-    // Google Ads
     expenses.push({
       company_id: companyId,
       vendor_id: vendorIds["Google Ads"],
       amount: 5000 + Math.floor(Math.random() * 2000),
       category: "marknadsforing",
-      description: "Google Ads-kampanjer",
+      description: "Google Ads campaigns",
       transaction_date: new Date(month.getFullYear(), month.getMonth(), 25).toISOString().split("T")[0],
       type: "invoice",
       is_recurring: true,
@@ -159,18 +153,18 @@ function generateDemoExpenses(vendorIds: Record<string, string>, companyId: stri
 }
 
 export function FortnoxDemoDialog({ companyId, onSuccess }: FortnoxDemoDialogProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [progress, setProgress] = useState<string>("");
+  const [progress, setProgress] = useState<DemoProgress>("");
 
   const handleStartDemo = async () => {
     setIsLoading(true);
     setError(null);
-    setProgress("Skapar leverantörer...");
+    setProgress("create_vendors");
 
     try {
-      // Step 1: Create vendors
       const vendorInserts = DEMO_VENDORS.map((v) => ({
         company_id: companyId,
         name: v.name,
@@ -179,14 +173,12 @@ export function FortnoxDemoDialog({ companyId, onSuccess }: FortnoxDemoDialogPro
         default_category: v.default_category,
       }));
 
-      const { data: createdVendors, error: vendorError } = await supabase
+      const { error: vendorError } = await supabase
         .from("vendors")
-        .upsert(vendorInserts, { onConflict: "company_id,normalized_name", ignoreDuplicates: true })
-        .select();
+        .upsert(vendorInserts, { onConflict: "company_id,normalized_name", ignoreDuplicates: true });
 
       if (vendorError) throw vendorError;
 
-      // Fetch all vendors for this company to get IDs
       const { data: allVendors, error: fetchError } = await supabase
         .from("vendors")
         .select("id, name")
@@ -199,20 +191,18 @@ export function FortnoxDemoDialog({ companyId, onSuccess }: FortnoxDemoDialogPro
         vendorIds[v.name] = v.id;
       });
 
-      setProgress("Skapar kostnader och fakturor...");
+      setProgress("create_expenses");
 
-      // Step 2: Create expenses
       const demoExpenses = generateDemoExpenses(vendorIds, companyId);
-      
+
       const { error: expenseError } = await supabase
         .from("expenses")
         .insert(demoExpenses);
 
       if (expenseError) throw expenseError;
 
-      setProgress("Aktiverar Fortnox-integration...");
+      setProgress("activate");
 
-      // Step 3: Create/update Fortnox integration as active
       const { data: existing } = await supabase
         .from("integrations")
         .select("id")
@@ -241,32 +231,39 @@ export function FortnoxDemoDialog({ companyId, onSuccess }: FortnoxDemoDialogPro
           });
       }
 
-      toast.success("Demo-data har skapats! Fortnox är nu ansluten i demo-läge.");
+      toast.success(t("integrations.fortnox_demo.toast.success"));
       setOpen(false);
       onSuccess();
     } catch (err) {
       console.error("Error creating demo data:", err);
-      setError("Kunde inte skapa demo-data. Försök igen.");
+      setError(t("integrations.fortnox_demo.toast.error"));
     } finally {
       setIsLoading(false);
       setProgress("");
     }
   };
 
+  const progressLabel =
+    progress === "create_vendors"
+      ? t("integrations.fortnox_demo.progress.create_vendors")
+      : progress === "create_expenses"
+        ? t("integrations.fortnox_demo.progress.create_expenses")
+        : progress === "activate"
+          ? t("integrations.fortnox_demo.progress.activate")
+          : "";
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="gap-2">
           <Play className="h-4 w-4" />
-          Testa demo
+          {t("integrations.fortnox_demo.button")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Testa Fortnox-integration med demodata</DialogTitle>
-          <DialogDescription>
-            Skapa exempeldata för att se hur integrationen fungerar utan att ansluta ett riktigt Fortnox-konto.
-          </DialogDescription>
+          <DialogTitle>{t("integrations.fortnox_demo.title")}</DialogTitle>
+          <DialogDescription>{t("integrations.fortnox_demo.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
@@ -278,42 +275,44 @@ export function FortnoxDemoDialog({ companyId, onSuccess }: FortnoxDemoDialogPro
           )}
 
           <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-            <p className="font-medium text-sm">Följande demodata skapas:</p>
+            <p className="font-medium text-sm">
+              {t("integrations.fortnox_demo.includes_title")}
+            </p>
             <ul className="text-sm text-muted-foreground space-y-2">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-primary" />
-                8 leverantörer (SaaS och vanliga)
+                {t("integrations.fortnox_demo.includes.vendors")}
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-primary" />
-                ~25 kostnader och fakturor
+                {t("integrations.fortnox_demo.includes.expenses")}
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-primary" />
-                3 månaders historik
+                {t("integrations.fortnox_demo.includes.history")}
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-primary" />
-                Kategorier: SaaS, IT, Kontor, Resor, Marknadsföring
+                {t("integrations.fortnox_demo.includes.categories")}
               </li>
             </ul>
           </div>
 
-          {progress && (
+          {progressLabel && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              {progress}
+              {progressLabel}
             </div>
           )}
         </div>
 
         <div className="flex justify-end gap-3">
           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>
-            Avbryt
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleStartDemo} disabled={isLoading}>
             {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Skapa demodata
+            {t("integrations.fortnox_demo.create_button")}
           </Button>
         </div>
       </DialogContent>

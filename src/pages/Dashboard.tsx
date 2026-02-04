@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+﻿import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { CategoryChart } from "@/components/dashboard/CategoryChart";
@@ -10,8 +10,10 @@ import { EmptyDashboard } from "@/components/dashboard/EmptyDashboard";
 import { WelcomeDialog, useWelcomeDialog } from "@/components/onboarding/WelcomeDialog";
 import { useDashboardData, useAvailableMonths } from "@/hooks/useDashboardData";
 import { Receipt, FileText, Layers, TrendingUp, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Index = () => {
+  const { t } = useTranslation();
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
@@ -23,9 +25,9 @@ const Index = () => {
   const isLoading = isLoadingMonths || isLoadingData;
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: 'SEK',
+    return new Intl.NumberFormat("sv-SE", {
+      style: "currency",
+      currency: "SEK",
       maximumFractionDigits: 0,
     }).format(value);
   };
@@ -45,17 +47,14 @@ const Index = () => {
     );
   }
 
-  // Show empty state if no data
   if (!dashboardData?.hasData) {
     return (
       <AppLayout>
         <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} />
         <div className="space-y-6">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground">
-              Översikt över dina kostnader och utgifter
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight">{t("dashboard.title")}</h1>
+            <p className="text-muted-foreground">{t("dashboard.subtitle")}</p>
           </div>
           <EmptyDashboard />
         </div>
@@ -65,34 +64,19 @@ const Index = () => {
 
   const { currentMonth, previousMonth, categoryBreakdown, topVendors, topSaas, recentExpenses } = dashboardData;
 
-  const totalChange = calculateChange(
-    currentMonth.total_spend,
-    previousMonth?.total_spend ?? null
-  );
-  const saasChange = calculateChange(
-    currentMonth.saas_spend,
-    previousMonth?.saas_spend ?? null
-  );
-  const expenseChange = calculateChange(
-    currentMonth.expense_spend,
-    previousMonth?.expense_spend ?? null
-  );
-  const invoiceChange = calculateChange(
-    currentMonth.invoice_spend,
-    previousMonth?.invoice_spend ?? null
-  );
+  const totalChange = calculateChange(currentMonth.total_spend, previousMonth?.total_spend ?? null);
+  const saasChange = calculateChange(currentMonth.saas_spend, previousMonth?.saas_spend ?? null);
+  const expenseChange = calculateChange(currentMonth.expense_spend, previousMonth?.expense_spend ?? null);
+  const invoiceChange = calculateChange(currentMonth.invoice_spend, previousMonth?.invoice_spend ?? null);
 
   return (
     <AppLayout>
       <WelcomeDialog open={showWelcome} onOpenChange={setShowWelcome} />
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground">
-              Översikt över dina kostnader och utgifter
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight">{t("dashboard.title")}</h1>
+            <p className="text-muted-foreground">{t("dashboard.subtitle")}</p>
           </div>
           <MonthSelector
             months={availableMonths}
@@ -105,45 +89,42 @@ const Index = () => {
           />
         </div>
 
-        {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <KPICard
-            title="Total spend"
+            title={t("dashboard.kpi.total_spend")}
             value={formatCurrency(currentMonth.total_spend)}
             change={totalChange}
-            changeLabel="vs förra månaden"
+            changeLabel={t("dashboard.kpi.vs_last_month")}
             icon={TrendingUp}
           />
           <KPICard
-            title="SaaS-kostnader"
+            title={t("dashboard.kpi.saas_costs")}
             value={formatCurrency(currentMonth.saas_spend)}
             change={saasChange}
-            changeLabel="vs förra månaden"
+            changeLabel={t("dashboard.kpi.vs_last_month")}
             icon={Layers}
           />
           <KPICard
-            title="Utlägg"
+            title={t("dashboard.kpi.expenses")}
             value={formatCurrency(currentMonth.expense_spend)}
             change={expenseChange}
-            changeLabel="vs förra månaden"
+            changeLabel={t("dashboard.kpi.vs_last_month")}
             icon={Receipt}
           />
           <KPICard
-            title="Fakturor"
+            title={t("dashboard.kpi.invoices")}
             value={formatCurrency(currentMonth.invoice_spend)}
             change={invoiceChange}
-            changeLabel="vs förra månaden"
+            changeLabel={t("dashboard.kpi.vs_last_month")}
             icon={FileText}
           />
         </div>
 
-        {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <CategoryChart data={categoryBreakdown} />
           <TopVendorsList vendors={topVendors} />
         </div>
 
-        {/* SaaS and Recent Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <SaaSList items={topSaas} />
           <RecentExpenses expenses={recentExpenses} />

@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { format } from 'date-fns';
-import { CalendarIcon, Plus, AlertCircle } from 'lucide-react';
+﻿import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { format } from "date-fns";
+import { CalendarIcon, Plus, AlertCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,10 +11,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Calendar } from '@/components/ui/calendar';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -23,33 +23,32 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { cn } from '@/lib/utils';
-import { CATEGORY_LABELS, ExpenseCategory, ExpenseType } from '@/types/spendo';
+} from "@/components/ui/popover";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
+import { CATEGORY_LABEL_KEYS, ExpenseCategory } from "@/types/spendo";
+import { useTranslation } from "react-i18next";
 
-const expenseSchema = z.object({
-  vendor_name: z.string().trim().min(1, 'Leverantör krävs').max(100, 'Max 100 tecken'),
-  amount: z.coerce.number().positive('Belopp måste vara positivt').max(10000000, 'Max 10 miljoner'),
-  transaction_date: z.date({ required_error: 'Datum krävs' }),
-  category: z.enum(['saas', 'resor', 'kontor', 'marknadsforing', 'it_verktyg', 'ovrigt'] as const),
-  type: z.enum(['expense', 'invoice'] as const),
-  description: z.string().trim().max(500, 'Max 500 tecken').optional(),
-});
-
-type ExpenseFormValues = z.infer<typeof expenseSchema>;
+type ExpenseFormValues = {
+  vendor_name: string;
+  amount: number;
+  transaction_date: Date;
+  category: ExpenseCategory;
+  type: "expense" | "invoice";
+  description?: string;
+};
 
 interface AddExpenseDialogProps {
   onAdd: (expense: ExpenseFormValues) => void;
@@ -58,24 +57,57 @@ interface AddExpenseDialogProps {
   isTrialing: boolean;
 }
 
-export function AddExpenseDialog({ 
-  onAdd, 
-  manualExpenseCount, 
-  maxManualExpenses, 
-  isTrialing 
+export function AddExpenseDialog({
+  onAdd,
+  manualExpenseCount,
+  maxManualExpenses,
+  isTrialing,
 }: AddExpenseDialogProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const remainingExpenses = maxManualExpenses - manualExpenseCount;
   const canAddMore = remainingExpenses > 0 || !isTrialing;
 
+  const expenseSchema = useMemo(
+    () =>
+      z.object({
+        vendor_name: z
+          .string()
+          .trim()
+          .min(1, t("validation.vendor_required"))
+          .max(100, t("validation.vendor_max", { max: 100 })),
+        amount: z
+          .coerce
+          .number()
+          .positive(t("validation.amount_positive"))
+          .max(10000000, t("validation.amount_max", { max: 10000000 })),
+        transaction_date: z.date({ required_error: t("validation.date_required") }),
+        category: z.enum([
+          "saas",
+          "resor",
+          "kontor",
+          "marknadsforing",
+          "it_verktyg",
+          "ovrigt",
+        ] as const),
+        type: z.enum(["expense", "invoice"] as const),
+        description: z
+          .string()
+          .trim()
+          .max(500, t("validation.description_max", { max: 500 }))
+          .optional(),
+      }),
+    [t]
+  );
+
   const form = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
-      vendor_name: '',
+      vendor_name: "",
       amount: undefined,
-      category: 'ovrigt',
-      type: 'expense',
-      description: '',
+      category: "ovrigt",
+      type: "expense",
+      description: "",
     },
   });
 
@@ -90,23 +122,24 @@ export function AddExpenseDialog({
       <DialogTrigger asChild>
         <Button disabled={!canAddMore}>
           <Plus className="h-4 w-4 mr-2" />
-          Lägg till utgift
+          {t("expenses.add.button")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Lägg till manuell utgift</DialogTitle>
-          <DialogDescription>
-            Lägg till en utgift manuellt för analys. Denna synkas inte till Kleer.
-          </DialogDescription>
+          <DialogTitle>{t("expenses.add.title")}</DialogTitle>
+          <DialogDescription>{t("expenses.add.description")}</DialogDescription>
         </DialogHeader>
 
         {isTrialing && (
-          <Alert variant={remainingExpenses <= 5 ? 'destructive' : 'default'}>
+          <Alert variant={remainingExpenses <= 5 ? "destructive" : "default"}>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              {remainingExpenses} av {maxManualExpenses} manuella utgifter kvar under trial.
-              {remainingExpenses <= 5 && ' Uppgradera för obegränsade manuella utgifter.'}
+              {t("expenses.add.trial_remaining", {
+                remaining: remainingExpenses,
+                max: maxManualExpenses,
+              })}
+              {remainingExpenses <= 5 && ` ${t("expenses.add.trial_upgrade")}`}
             </AlertDescription>
           </Alert>
         )}
@@ -118,9 +151,9 @@ export function AddExpenseDialog({
               name="vendor_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Leverantör</FormLabel>
+                  <FormLabel>{t("expenses.add.field.vendor")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="T.ex. Slack, AWS, SJ" {...field} />
+                    <Input placeholder={t("expenses.add.placeholder.vendor")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -133,12 +166,12 @@ export function AddExpenseDialog({
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Belopp (SEK)</FormLabel>
+                    <FormLabel>{t("expenses.add.field.amount")}</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="1000" 
-                        {...field} 
+                      <Input
+                        type="number"
+                        placeholder={t("expenses.add.placeholder.amount")}
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -151,21 +184,21 @@ export function AddExpenseDialog({
                 name="transaction_date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Datum</FormLabel>
+                    <FormLabel>{t("expenses.add.field.date")}</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
                             variant="outline"
                             className={cn(
-                              'w-full pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground'
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
                             )}
                           >
                             {field.value ? (
-                              format(field.value, 'yyyy-MM-dd')
+                              format(field.value, "PPP")
                             ) : (
-                              <span>Välj datum</span>
+                              <span>{t("expenses.add.placeholder.date")}</span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
@@ -177,10 +210,9 @@ export function AddExpenseDialog({
                           selected={field.value}
                           onSelect={field.onChange}
                           disabled={(date) =>
-                            date > new Date() || date < new Date('2020-01-01')
+                            date > new Date() || date < new Date("2020-01-01")
                           }
                           initialFocus
-                          className={cn('p-3 pointer-events-auto')}
                         />
                       </PopoverContent>
                     </Popover>
@@ -190,77 +222,73 @@ export function AddExpenseDialog({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Kategori</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Välj kategori" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-                          <SelectItem key={key} value={key}>{label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("expenses.add.field.category")}</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("expenses.add.placeholder.category")} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.entries(CATEGORY_LABEL_KEYS).map(([key, labelKey]) => (
+                        <SelectItem key={key} value={key}>
+                          {t(labelKey)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Typ</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Välj typ" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="expense">Utlägg</SelectItem>
-                        <SelectItem value="invoice">Faktura</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("expenses.add.field.type")}</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("expenses.add.placeholder.type")} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="expense">{t("expenses.type.expense")}</SelectItem>
+                      <SelectItem value="invoice">{t("expenses.type.invoice")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Beskrivning (valfritt)</FormLabel>
+                  <FormLabel>{t("expenses.add.field.description")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="T.ex. Månadsprenumeration" {...field} />
+                    <Input placeholder={t("expenses.add.placeholder.description")} {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Kort beskrivning av utgiften
-                  </FormDescription>
+                  <FormDescription>{t("expenses.add.description_optional")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-end gap-3">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                Avbryt
+                {t("common.cancel")}
               </Button>
-              <Button type="submit">
-                Lägg till
-              </Button>
+              <Button type="submit">{t("common.save")}</Button>
             </div>
           </form>
         </Form>

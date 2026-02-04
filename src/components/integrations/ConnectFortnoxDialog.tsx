@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface ConnectFortnoxDialogProps {
   companyId: string;
@@ -21,16 +22,17 @@ interface ConnectFortnoxDialogProps {
 }
 
 export function ConnectFortnoxDialog({ companyId, onSuccess }: ConnectFortnoxDialogProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
 
   const handleConnect = async () => {
     if (!clientId.trim() || !clientSecret.trim()) {
-      setError("Fyll i både Client ID och Client Secret");
+      setError(t("integrations.fortnox.connect.error_missing"));
       return;
     }
 
@@ -38,7 +40,6 @@ export function ConnectFortnoxDialog({ companyId, onSuccess }: ConnectFortnoxDia
     setError(null);
 
     try {
-      // Check if integration already exists
       const { data: existing } = await supabase
         .from("integrations")
         .select("id")
@@ -47,7 +48,6 @@ export function ConnectFortnoxDialog({ companyId, onSuccess }: ConnectFortnoxDia
         .single();
 
       if (existing) {
-        // Update existing integration
         const { error: updateError } = await supabase
           .from("integrations")
           .update({
@@ -60,7 +60,6 @@ export function ConnectFortnoxDialog({ companyId, onSuccess }: ConnectFortnoxDia
 
         if (updateError) throw updateError;
       } else {
-        // Create new integration
         const { error: insertError } = await supabase
           .from("integrations")
           .insert({
@@ -74,14 +73,14 @@ export function ConnectFortnoxDialog({ companyId, onSuccess }: ConnectFortnoxDia
         if (insertError) throw insertError;
       }
 
-      toast.success("Fortnox har anslutits!");
+      toast.success(t("integrations.fortnox.connect.toast_success"));
       setOpen(false);
       setClientId("");
       setClientSecret("");
       onSuccess();
     } catch (err) {
       console.error("Error connecting Fortnox:", err);
-      setError("Kunde inte ansluta Fortnox. Kontrollera dina uppgifter och försök igen.");
+      setError(t("integrations.fortnox.connect.error_failed"));
     } finally {
       setIsLoading(false);
     }
@@ -90,13 +89,13 @@ export function ConnectFortnoxDialog({ companyId, onSuccess }: ConnectFortnoxDia
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">Anslut Fortnox</Button>
+        <Button className="gap-2">{t("integrations.fortnox.connect.button")}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Anslut Fortnox</DialogTitle>
+          <DialogTitle>{t("integrations.fortnox.connect.title")}</DialogTitle>
           <DialogDescription>
-            Ange dina Fortnox API-uppgifter för att börja synka data automatiskt.
+            {t("integrations.fortnox.connect.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -109,40 +108,42 @@ export function ConnectFortnoxDialog({ companyId, onSuccess }: ConnectFortnoxDia
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="fortnox-client-id">Client ID</Label>
+            <Label htmlFor="fortnox-client-id">{t("integrations.fortnox.connect.client_id")}</Label>
             <Input
               id="fortnox-client-id"
-              placeholder="Din Fortnox Client ID"
+              placeholder={t("integrations.fortnox.connect.client_id_placeholder")}
               value={clientId}
               onChange={(e) => setClientId(e.target.value)}
               disabled={isLoading}
             />
             <p className="text-xs text-muted-foreground">
-              Hittas i Fortnox Developer Portal under din app
+              {t("integrations.fortnox.connect.client_id_hint")}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="fortnox-client-secret">Client Secret</Label>
+            <Label htmlFor="fortnox-client-secret">{t("integrations.fortnox.connect.client_secret")}</Label>
             <Input
               id="fortnox-client-secret"
               type="password"
-              placeholder="Din Fortnox Client Secret"
+              placeholder={t("integrations.fortnox.connect.client_secret_placeholder")}
               value={clientSecret}
               onChange={(e) => setClientSecret(e.target.value)}
               disabled={isLoading}
             />
             <p className="text-xs text-muted-foreground">
-              Skapas tillsammans med din app i Developer Portal
+              {t("integrations.fortnox.connect.client_secret_hint")}
             </p>
           </div>
 
           <div className="bg-muted/50 rounded-lg p-3 text-sm">
-            <p className="font-medium mb-1">Så får du API-åtkomst:</p>
+            <p className="font-medium mb-1">
+              {t("integrations.fortnox.connect.steps_title")}
+            </p>
             <ol className="text-muted-foreground space-y-1 text-xs list-decimal list-inside">
-              <li>Registrera dig på Fortnox Developer Portal</li>
-              <li>Skapa en ny app för att få Client ID & Secret</li>
-              <li>Aktivera de scope du behöver (fakturor, bokföring, etc.)</li>
+              <li>{t("integrations.fortnox.connect.steps.one")}</li>
+              <li>{t("integrations.fortnox.connect.steps.two")}</li>
+              <li>{t("integrations.fortnox.connect.steps.three")}</li>
             </ol>
             <a
               href="https://www.fortnox.se/developer"
@@ -151,18 +152,18 @@ export function ConnectFortnoxDialog({ companyId, onSuccess }: ConnectFortnoxDia
               className="text-primary hover:underline inline-flex items-center gap-1 mt-2"
             >
               <ExternalLink className="h-3 w-3" />
-              Fortnox Developer Portal
+              {t("integrations.fortnox.connect.portal_link")}
             </a>
           </div>
         </div>
 
         <div className="flex justify-end gap-3">
           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>
-            Avbryt
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleConnect} disabled={isLoading}>
             {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Anslut
+            {t("common.connect")}
           </Button>
         </div>
       </DialogContent>

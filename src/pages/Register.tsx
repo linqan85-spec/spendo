@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import spendoLogoFull from "@/assets/spendo-logo-full.png";
+import { useTranslation } from "react-i18next";
 
 export default function Register() {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -24,8 +26,8 @@ export default function Register() {
 
     if (!name || !email || !companyName || !password) {
       toast({
-        title: "Fyll i alla fält",
-        description: "Alla fält är obligatoriska",
+        title: t("register.toast.missing_fields.title"),
+        description: t("register.toast.missing_fields.description"),
         variant: "destructive",
       });
       return;
@@ -33,8 +35,8 @@ export default function Register() {
 
     if (password !== confirmPassword) {
       toast({
-        title: "Lösenorden matchar inte",
-        description: "Kontrollera att lösenorden är identiska",
+        title: t("register.toast.password_mismatch.title"),
+        description: t("register.toast.password_mismatch.description"),
         variant: "destructive",
       });
       return;
@@ -42,8 +44,8 @@ export default function Register() {
 
     if (password.length < 6) {
       toast({
-        title: "Lösenordet är för kort",
-        description: "Lösenordet måste vara minst 6 tecken",
+        title: t("register.toast.password_short.title"),
+        description: t("register.toast.password_short.description"),
         variant: "destructive",
       });
       return;
@@ -66,7 +68,7 @@ export default function Register() {
 
       if (error) {
         toast({
-          title: "Registrering misslyckades",
+          title: t("register.toast.failed.title"),
           description: error.message,
           variant: "destructive",
         });
@@ -75,16 +77,16 @@ export default function Register() {
 
       if (data.user) {
         toast({
-          title: "Konto skapat!",
-          description: "Kolla din e-post för att verifiera kontot",
+          title: t("register.toast.success.title"),
+          description: t("register.toast.success.description"),
         });
         navigate("/login");
       }
     } catch (error) {
       console.error("Registration error:", error);
       toast({
-        title: "Något gick fel",
-        description: "Försök igen senare",
+        title: t("register.toast.error.title"),
+        description: t("register.toast.error.description"),
         variant: "destructive",
       });
     } finally {
@@ -94,33 +96,29 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
       <header className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center">
           <Link to="/" className="flex items-center">
-            <img src={spendoLogoFull} alt="Spendo" className="h-8" />
+            <img src={spendoLogoFull} alt={t("brand.spendo")} className="h-8" />
           </Link>
         </div>
       </header>
 
-      {/* Register Form */}
       <main className="flex-1 flex items-center justify-center p-4 py-12">
         <div className="w-full max-w-md">
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Skapa konto</CardTitle>
-              <CardDescription>
-                Starta din 14 dagars gratis provperiod
-              </CardDescription>
+              <CardTitle className="text-2xl">{t("register.title")}</CardTitle>
+              <CardDescription>{t("register.subtitle")}</CardDescription>
             </CardHeader>
             <form onSubmit={handleRegister}>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Ditt namn</Label>
+                  <Label htmlFor="name">{t("register.field.name")}</Label>
                   <Input
                     id="name"
                     type="text"
-                    placeholder="Anna Andersson"
+                    placeholder={t("register.placeholder.name")}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     disabled={isLoading}
@@ -128,11 +126,11 @@ export default function Register() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="company">Företagsnamn</Label>
+                  <Label htmlFor="company">{t("register.field.company")}</Label>
                   <Input
                     id="company"
                     type="text"
-                    placeholder="Mitt Företag AB"
+                    placeholder={t("register.placeholder.company")}
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     disabled={isLoading}
@@ -140,11 +138,11 @@ export default function Register() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">E-post</Label>
+                  <Label htmlFor="email">{t("register.field.email")}</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="namn@foretag.se"
+                    placeholder={t("register.placeholder.email")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={isLoading}
@@ -152,11 +150,11 @@ export default function Register() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Lösenord</Label>
+                  <Label htmlFor="password">{t("register.field.password")}</Label>
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Minst 6 tecken"
+                    placeholder={t("register.placeholder.password")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isLoading}
@@ -164,11 +162,11 @@ export default function Register() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Bekräfta lösenord</Label>
+                  <Label htmlFor="confirmPassword">{t("register.field.confirm_password")}</Label>
                   <Input
                     id="confirmPassword"
                     type="password"
-                    placeholder="Upprepa lösenordet"
+                    placeholder={t("register.placeholder.confirm_password")}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     disabled={isLoading}
@@ -177,13 +175,13 @@ export default function Register() {
                 </div>
 
                 <div className="bg-muted/50 rounded-lg p-4">
-                  <p className="text-sm font-medium mb-3">Inkluderat i provperioden:</p>
+                  <p className="text-sm font-medium mb-3">{t("register.trial_includes")}</p>
                   <ul className="space-y-2">
                     {[
-                      "Kleer-integration",
-                      "Automatisk kategorisering",
-                      "SaaS-identifiering",
-                      "Månadsrapporter",
+                      t("register.trial_features.one"),
+                      t("register.trial_features.two"),
+                      t("register.trial_features.three"),
+                      t("register.trial_features.four"),
                     ].map((item, i) => (
                       <li key={i} className="flex items-center gap-2 text-sm">
                         <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
@@ -194,30 +192,30 @@ export default function Register() {
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
-                <Button 
-                  type="submit" 
-                  className="w-full" 
+                <Button
+                  type="submit"
+                  className="w-full"
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Skapar konto...
+                      {t("register.loading")}
                     </>
                   ) : (
-                    "Skapa konto"
+                    t("register.submit")
                   )}
                 </Button>
                 <p className="text-xs text-muted-foreground text-center">
-                  Genom att registrera dig godkänner du våra{" "}
-                  <a href="#" className="text-primary hover:underline">villkor</a>
-                  {" "}och{" "}
-                  <a href="#" className="text-primary hover:underline">integritetspolicy</a>
+                  {t("register.terms.prefix")}
+                  <a href="#" className="text-primary hover:underline">{t("register.terms.terms")}</a>
+                  {t("register.terms.and")}
+                  <a href="#" className="text-primary hover:underline">{t("register.terms.privacy")}</a>
                 </p>
                 <p className="text-sm text-muted-foreground text-center">
-                  Har du redan ett konto?{" "}
+                  {t("register.login_prompt")}{" "}
                   <Link to="/login" className="text-primary hover:underline">
-                    Logga in
+                    {t("register.login_link")}
                   </Link>
                 </p>
               </CardFooter>

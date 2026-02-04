@@ -1,18 +1,20 @@
-import { AppLayout } from "@/components/layout/AppLayout";
+﻿import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useExpenses, useAddExpense, useManualExpenseCount } from "@/hooks/useExpensesData";
-import { CATEGORY_LABELS, ExpenseCategory } from "@/types/spendo";
+import { CATEGORY_LABEL_KEYS, ExpenseCategory } from "@/types/spendo";
 import { useState, useMemo } from "react";
 import { Search, Receipt, FileText, Loader2, Plug, ArrowRight } from "lucide-react";
 import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Expenses() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
@@ -21,7 +23,6 @@ export default function Expenses() {
   const { data: manualExpenseCount = 0 } = useManualExpenseCount();
   const addExpense = useAddExpense();
 
-  // Filter expenses
   const filteredExpenses = useMemo(() => {
     return expenses.filter((expense) => {
       const vendorName = expense.vendor?.name || "";
@@ -46,7 +47,7 @@ export default function Expenses() {
     await addExpense.mutateAsync({
       vendor_name: data.vendor_name,
       amount: data.amount,
-      transaction_date: data.transaction_date.toISOString().split('T')[0],
+      transaction_date: data.transaction_date.toISOString().split("T")[0],
       description: data.description || "",
       category: data.category,
       type: data.type,
@@ -80,10 +81,8 @@ export default function Expenses() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Utgifter</h1>
-            <p className="text-muted-foreground">
-              Alla leverantörsfakturor och utlägg
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight">{t("expenses.title")}</h1>
+            <p className="text-muted-foreground">{t("expenses.subtitle")}</p>
           </div>
           <AddExpenseDialog
             onAdd={handleAddExpense}
@@ -93,7 +92,6 @@ export default function Expenses() {
           />
         </div>
 
-        {/* Empty state */}
         {expenses.length === 0 ? (
           <Card className="border-primary/20 bg-primary/5">
             <CardContent className="py-12 text-center">
@@ -101,17 +99,16 @@ export default function Expenses() {
                 <Receipt className="h-8 w-8 text-primary" />
               </div>
               <h2 className="text-xl font-semibold mb-2">
-                Inga utgifter ännu
+                {t("expenses.empty.title")}
               </h2>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Anslut ditt bokföringssystem för att automatiskt importera utgifter,
-                eller lägg till dem manuellt.
+                {t("expenses.empty.description")}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button asChild>
                   <Link to="/integration" className="gap-2">
                     <Plug className="h-4 w-4" />
-                    Anslut integration
+                    {t("expenses.empty.connect")}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -126,12 +123,11 @@ export default function Expenses() {
           </Card>
         ) : (
           <>
-            {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Sök leverantör eller beskrivning..."
+                  placeholder={t("expenses.search.placeholder")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-9"
@@ -139,46 +135,46 @@ export default function Expenses() {
               </div>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger className="w-full sm:w-[180px]">
-                  <SelectValue placeholder="Kategori" />
+                  <SelectValue placeholder={t("expenses.filters.category")}
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alla kategorier</SelectItem>
-                  {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+                  <SelectItem value="all">{t("expenses.filters.all_categories")}</SelectItem>
+                  {Object.entries(CATEGORY_LABEL_KEYS).map(([value, labelKey]) => (
                     <SelectItem key={value} value={value}>
-                      {label}
+                      {t(labelKey)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="w-full sm:w-[150px]">
-                  <SelectValue placeholder="Typ" />
+                  <SelectValue placeholder={t("expenses.filters.type")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alla typer</SelectItem>
-                  <SelectItem value="expense">Utlägg</SelectItem>
-                  <SelectItem value="invoice">Faktura</SelectItem>
+                  <SelectItem value="all">{t("expenses.filters.all_types")}</SelectItem>
+                  <SelectItem value="expense">{t("expenses.type.expense")}</SelectItem>
+                  <SelectItem value="invoice">{t("expenses.type.invoice")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Expenses Table */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-base font-semibold">
-                  {filteredExpenses.length} utgifter
+                  {t("expenses.table.count", { count: filteredExpenses.length })}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Datum</TableHead>
-                      <TableHead>Leverantör</TableHead>
-                      <TableHead>Beskrivning</TableHead>
-                      <TableHead>Kategori</TableHead>
-                      <TableHead>Typ</TableHead>
-                      <TableHead className="text-right">Belopp</TableHead>
+                      <TableHead>{t("expenses.table.date")}</TableHead>
+                      <TableHead>{t("expenses.table.vendor")}</TableHead>
+                      <TableHead>{t("expenses.table.description")}</TableHead>
+                      <TableHead>{t("expenses.table.category")}</TableHead>
+                      <TableHead>{t("expenses.table.type")}</TableHead>
+                      <TableHead className="text-right">{t("expenses.table.amount")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -194,24 +190,22 @@ export default function Expenses() {
                             ) : (
                               <FileText className="h-4 w-4 text-muted-foreground" />
                             )}
-                            {expense.vendor?.name || "Okänd"}
+                            {expense.vendor?.name || t("common.unknown")}
                           </div>
                         </TableCell>
                         <TableCell className="max-w-[200px] truncate">
-                          {expense.description || "—"}
+                          {expense.description || t("common.none")}
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline">
-                            {CATEGORY_LABELS[expense.category]}
+                            {t(CATEGORY_LABEL_KEYS[expense.category])}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant={
-                              expense.type === "expense" ? "secondary" : "default"
-                            }
+                            variant={expense.type === "expense" ? "secondary" : "default"}
                           >
-                            {expense.type === "expense" ? "Utlägg" : "Faktura"}
+                            {expense.type === "expense" ? t("expenses.type.expense") : t("expenses.type.invoice")}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right font-medium">

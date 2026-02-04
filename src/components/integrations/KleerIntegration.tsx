@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ExternalLink, RefreshCw, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { IntegrationCard, IntegrationStatus } from "./IntegrationCard";
@@ -22,6 +22,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { useTranslation } from "react-i18next";
 
 interface KleerIntegrationProps {
   companyId: string | null;
@@ -34,8 +35,9 @@ interface KleerIntegrationProps {
 }
 
 export function KleerIntegration({ companyId, integration, onRefresh }: KleerIntegrationProps) {
+  const { t } = useTranslation();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const status: IntegrationStatus = integration?.status as IntegrationStatus || "inactive";
+  const status: IntegrationStatus = (integration?.status as IntegrationStatus) || "inactive";
 
   const handleDisconnect = async () => {
     if (!integration) return;
@@ -48,31 +50,30 @@ export function KleerIntegration({ companyId, integration, onRefresh }: KleerInt
 
       if (error) throw error;
 
-      toast.success("Kleer har kopplats bort");
+      toast.success(t("integrations.kleer.toast.disconnected"));
       onRefresh();
     } catch (err) {
       console.error("Error disconnecting:", err);
-      toast.error("Kunde inte koppla bort Kleer");
+      toast.error(t("integrations.kleer.toast.disconnect_failed"));
     }
   };
 
   const handleSync = async () => {
-    toast.info("Synkronisering startar...");
-    // TODO: Implement actual sync via edge function
-    toast.success("Synkronisering slutförd (demo)");
+    toast.info(t("integrations.sync.starting"));
+    toast.success(t("integrations.sync.completed_demo"));
   };
 
   const actionButton = status === "inactive" ? (
     companyId ? (
       <ConnectKleerDialog companyId={companyId} onSuccess={onRefresh} />
     ) : (
-      <Button disabled size="sm">Anslut</Button>
+      <Button disabled size="sm">{t("common.connect")}</Button>
     )
   ) : (
     <div className="flex gap-2">
       <Button onClick={handleSync} size="sm" className="gap-1.5">
         <RefreshCw className="h-3.5 w-3.5" />
-        Synka
+        {t("integrations.sync.button")}
       </Button>
       <AlertDialog>
         <AlertDialogTrigger asChild>
@@ -82,16 +83,13 @@ export function KleerIntegration({ companyId, integration, onRefresh }: KleerInt
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Koppla bort Kleer?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Din befintliga data kommer finnas kvar, men ingen ny data kommer synkas 
-              från Kleer förrän du ansluter igen.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("integrations.kleer.disconnect.title")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("integrations.kleer.disconnect.description")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDisconnect}>
-              Koppla bort
+              {t("common.disconnect")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -100,17 +98,17 @@ export function KleerIntegration({ companyId, integration, onRefresh }: KleerInt
   );
 
   const featuresList = [
-    "Leverantörsfakturor",
-    "Utlägg och kvitton",
-    "Leverantörsnamn",
-    "Belopp och moms",
+    t("integrations.kleer.features.invoices"),
+    t("integrations.kleer.features.expenses"),
+    t("integrations.kleer.features.vendor_names"),
+    t("integrations.kleer.features.amounts"),
   ];
 
   return (
     <IntegrationCard
       name="Kleer"
-      description="Tidigare PE Accounting"
-      icon={<img src={kleerLogo} alt="Kleer" className="h-6 w-6 object-contain" />}
+      description={t("integrations.kleer.description")}
+      icon={<img src={kleerLogo} alt={t("integrations.kleer.name")} className="h-6 w-6 object-contain" />}
       status={status}
       lastSynced={integration?.last_synced_at}
       action={actionButton}
@@ -118,22 +116,20 @@ export function KleerIntegration({ companyId, integration, onRefresh }: KleerInt
       <Collapsible open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <CollapsibleTrigger asChild>
           <Button variant="ghost" size="sm" className="w-full justify-between text-muted-foreground hover:text-foreground">
-            {isDetailsOpen ? "Dölj detaljer" : "Visa detaljer"}
+            {isDetailsOpen ? t("integrations.details.hide") : t("integrations.details.show")}
             {isDetailsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-4 space-y-4">
           {status === "inactive" && (
             <div className="bg-muted/50 rounded-lg p-3 text-sm">
-              <p className="font-medium mb-1">Så fungerar det:</p>
-              <p className="text-muted-foreground">
-                1. Kontakta Kleer för API-nyckel → 2. Anslut här → 3. Data synkas automatiskt
-              </p>
+              <p className="font-medium mb-1">{t("integrations.how_it_works")}</p>
+              <p className="text-muted-foreground">{t("integrations.kleer.how_to")}</p>
             </div>
           )}
 
           <div>
-            <p className="text-sm font-medium mb-2">Vad som hämtas:</p>
+            <p className="text-sm font-medium mb-2">{t("integrations.kleer.data_title")}</p>
             <div className="flex flex-wrap gap-2">
               {featuresList.map((item, i) => (
                 <span key={i} className="inline-flex items-center gap-1 text-xs bg-muted px-2 py-1 rounded">
@@ -147,7 +143,7 @@ export function KleerIntegration({ companyId, integration, onRefresh }: KleerInt
           <Button variant="link" size="sm" className="p-0 h-auto text-xs" asChild>
             <a href="https://api-doc.kleer.se/" target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-3 w-3 mr-1" />
-              API-dokumentation
+              {t("integrations.kleer.docs")}
             </a>
           </Button>
         </CollapsibleContent>

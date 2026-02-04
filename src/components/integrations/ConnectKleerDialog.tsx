@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface ConnectKleerDialogProps {
   companyId: string;
@@ -21,16 +22,17 @@ interface ConnectKleerDialogProps {
 }
 
 export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [kleerCompanyId, setKleerCompanyId] = useState("");
   const [accessToken, setAccessToken] = useState("");
 
   const handleConnect = async () => {
     if (!kleerCompanyId.trim() || !accessToken.trim()) {
-      setError("Fyll i både bolagsid och access token");
+      setError(t("integrations.kleer.connect.error_missing"));
       return;
     }
 
@@ -38,7 +40,6 @@ export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogP
     setError(null);
 
     try {
-      // Check if integration already exists
       const { data: existing } = await supabase
         .from("integrations")
         .select("id")
@@ -47,12 +48,11 @@ export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogP
         .single();
 
       if (existing) {
-        // Update existing integration
         const { error: updateError } = await supabase
           .from("integrations")
           .update({
             access_token: accessToken.trim(),
-            refresh_token: kleerCompanyId.trim(), // Store Kleer company ID in refresh_token field
+            refresh_token: kleerCompanyId.trim(),
             status: "active",
             last_synced_at: null,
           })
@@ -60,28 +60,27 @@ export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogP
 
         if (updateError) throw updateError;
       } else {
-        // Create new integration
         const { error: insertError } = await supabase
           .from("integrations")
           .insert({
             company_id: companyId,
             provider: "kleer",
             access_token: accessToken.trim(),
-            refresh_token: kleerCompanyId.trim(), // Store Kleer company ID in refresh_token field
+            refresh_token: kleerCompanyId.trim(),
             status: "active",
           });
 
         if (insertError) throw insertError;
       }
 
-      toast.success("Kleer har anslutits!");
+      toast.success(t("integrations.kleer.connect.toast_success"));
       setOpen(false);
       setKleerCompanyId("");
       setAccessToken("");
       onSuccess();
     } catch (err) {
       console.error("Error connecting Kleer:", err);
-      setError("Kunde inte ansluta Kleer. Kontrollera dina uppgifter och försök igen.");
+      setError(t("integrations.kleer.connect.error_failed"));
     } finally {
       setIsLoading(false);
     }
@@ -90,14 +89,12 @@ export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogP
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">Anslut Kleer</Button>
+        <Button className="gap-2">{t("integrations.kleer.connect.button")}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Anslut Kleer</DialogTitle>
-          <DialogDescription>
-            Ange dina Kleer API-uppgifter för att börja synka data automatiskt.
-          </DialogDescription>
+          <DialogTitle>{t("integrations.kleer.connect.title")}</DialogTitle>
+          <DialogDescription>{t("integrations.kleer.connect.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
@@ -109,36 +106,36 @@ export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogP
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="kleer-company-id">Kleer Bolagsid</Label>
+            <Label htmlFor="kleer-company-id">{t("integrations.kleer.connect.company_id")}</Label>
             <Input
               id="kleer-company-id"
-              placeholder="t.ex. 12345"
+              placeholder={t("integrations.kleer.connect.company_id_placeholder")}
               value={kleerCompanyId}
               onChange={(e) => setKleerCompanyId(e.target.value)}
               disabled={isLoading}
             />
             <p className="text-xs text-muted-foreground">
-              Hittas i Kleer under Inställningar → Bolagsinformation
+              {t("integrations.kleer.connect.company_id_hint")}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="access-token">Access Token</Label>
+            <Label htmlFor="access-token">{t("integrations.kleer.connect.access_token")}</Label>
             <Input
               id="access-token"
               type="password"
-              placeholder="Din API-nyckel från Kleer"
+              placeholder={t("integrations.kleer.connect.access_token_placeholder")}
               value={accessToken}
               onChange={(e) => setAccessToken(e.target.value)}
               disabled={isLoading}
             />
             <p className="text-xs text-muted-foreground">
-              Be din Kleer-konsult om en API-nyckel
+              {t("integrations.kleer.connect.access_token_hint")}
             </p>
           </div>
 
           <div className="bg-muted/50 rounded-lg p-3 text-sm">
-            <p className="font-medium mb-1">Behöver du hjälp?</p>
+            <p className="font-medium mb-1">{t("integrations.kleer.connect.help_title")}</p>
             <a
               href="https://api-doc.kleer.se/"
               target="_blank"
@@ -146,18 +143,18 @@ export function ConnectKleerDialog({ companyId, onSuccess }: ConnectKleerDialogP
               className="text-primary hover:underline inline-flex items-center gap-1"
             >
               <ExternalLink className="h-3 w-3" />
-              Kleer API-dokumentation
+              {t("integrations.kleer.connect.docs_link")}
             </a>
           </div>
         </div>
 
         <div className="flex justify-end gap-3">
           <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>
-            Avbryt
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleConnect} disabled={isLoading}>
             {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Anslut
+            {t("common.connect")}
           </Button>
         </div>
       </DialogContent>

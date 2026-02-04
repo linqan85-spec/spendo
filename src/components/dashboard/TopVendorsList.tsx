@@ -1,6 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+﻿import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Vendor } from "@/types/spendo";
 import { Building2, Layers } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface TopVendorsListProps {
   vendors: Array<{ vendor: Vendor; total: number }>;
@@ -8,25 +9,28 @@ interface TopVendorsListProps {
   showSaasIndicator?: boolean;
 }
 
-export function TopVendorsList({ 
-  vendors, 
-  title = "Top leverantörer",
-  showSaasIndicator = true 
+export function TopVendorsList({
+  vendors,
+  title,
+  showSaasIndicator = true,
 }: TopVendorsListProps) {
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t("dashboard.top_vendors.title");
+
   const formatValue = (value: number) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: 'SEK',
+    return new Intl.NumberFormat("sv-SE", {
+      style: "currency",
+      currency: "SEK",
       maximumFractionDigits: 0,
     }).format(value);
   };
 
-  const maxTotal = Math.max(...vendors.map(v => v.total));
+  const maxTotal = Math.max(...vendors.map((v) => v.total));
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base font-semibold">{title}</CardTitle>
+        <CardTitle className="text-base font-semibold">{resolvedTitle}</CardTitle>
       </CardHeader>
       <CardContent>
         {vendors.length > 0 ? (
@@ -48,7 +52,7 @@ export function TopVendorsList({
                   </span>
                 </div>
                 <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-primary rounded-full transition-all"
                     style={{ width: `${(item.total / maxTotal) * 100}%` }}
                   />
@@ -60,7 +64,7 @@ export function TopVendorsList({
           <div className="h-[200px] flex items-center justify-center text-muted-foreground">
             <div className="text-center">
               <Building2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>Inga leverantörer</p>
+              <p>{t("dashboard.top_vendors.empty")}</p>
             </div>
           </div>
         )}
