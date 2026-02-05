@@ -656,6 +656,13 @@
   "admin.pricing.features_desc": "Lista över funktioner som visas i prissektionen",
   "admin.pricing.new_feature_placeholder": "Lägg till ny funktion...",
   "admin.pricing.add_feature": "Lägg till",
+  "admin.pricing.integrations": "Integrationer",
+  "admin.pricing.integrations_desc": "Sätt pris för varje integration eller inkludera i grundpriset",
+  "admin.pricing.new_integration_name": "Integrationsnamn...",
+  "admin.pricing.add_integration": "Lägg till",
+  "admin.pricing.included": "Ingår",
+  "admin.pricing.addon": "Tillägg",
+  "admin.pricing.addons": "Tillägg",
   "admin.pricing.preview": "Förhandsvisning",
   "admin.pricing.from": "Från",
 
