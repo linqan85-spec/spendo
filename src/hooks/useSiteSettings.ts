@@ -1,12 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface IntegrationPricing {
+  id: string;
+  name: string;
+  price: number;
+  included_in_base: boolean;
+}
+
 export interface PricingSettings {
   base_price: number;
   extra_user_price: number;
   trial_days: number;
   currency: string;
   features: string[];
+  integrations: IntegrationPricing[];
 }
 
 export interface SiteSettings {
@@ -19,13 +27,18 @@ const DEFAULT_PRICING: PricingSettings = {
   trial_days: 14,
   currency: "kr",
   features: [
-    "Kleer-integration",
     "Obegränsat antal transaktioner",
     "Automatisk kategorisering",
     "SaaS-identifiering",
     "Schemalagda rapporter (max 1/vecka)",
     "PDF & CSV-export",
     "1 användare inkluderad",
+  ],
+  integrations: [
+    { id: "kleer", name: "Kleer", price: 0, included_in_base: true },
+    { id: "fortnox", name: "Fortnox", price: 99, included_in_base: false },
+    { id: "visma", name: "Visma", price: 149, included_in_base: false },
+    { id: "bjorn-lunden", name: "Björn Lundén", price: 149, included_in_base: false },
   ],
 };
 
