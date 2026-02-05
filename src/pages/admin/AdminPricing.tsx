@@ -49,7 +49,11 @@ export default function AdminPricing() {
 
   useEffect(() => {
     if (pricing) {
-      setFormData(pricing);
+      setFormData({
+        ...pricing,
+        features: pricing.features ?? [],
+        integrations: pricing.integrations ?? [],
+      });
     }
   }, [pricing]);
 
