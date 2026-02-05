@@ -1,4 +1,4 @@
-﻿import {
+import {
   LayoutDashboard,
   Receipt,
   Building2,
@@ -9,6 +9,8 @@
   Layers,
   Shield,
   Users,
+  DollarSign,
+  Wallet,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -41,6 +43,7 @@ const mainNavItems = [
 
 const settingsNavItems = [
   { titleKey: "nav.integration", url: "/integration", icon: CreditCard },
+  { titleKey: "nav.billing", url: "/billing", icon: Wallet },
   { titleKey: "nav.settings", url: "/settings", icon: Settings },
 ];
 
@@ -48,6 +51,7 @@ const adminNavItems = [
   { titleKey: "nav.admin_dashboard", url: "/admin", icon: Shield },
   { titleKey: "nav.companies", url: "/admin/companies", icon: Building2 },
   { titleKey: "nav.users", url: "/admin/users", icon: Users },
+  { titleKey: "nav.admin_pricing", url: "/admin/pricing", icon: DollarSign },
 ];
 
 export function AppSidebar() {

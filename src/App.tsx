@@ -13,10 +13,12 @@ import SaaS from "./pages/SaaS";
 import Vendors from "./pages/Vendors";
 import Integration from "./pages/Integration";
 import Settings from "./pages/Settings";
+import Billing from "./pages/Billing";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminCompanies from "./pages/admin/AdminCompanies";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminCompanyDetail from "./pages/admin/AdminCompanyDetail";
+import AdminPricing from "./pages/admin/AdminPricing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,11 +40,13 @@ const App = () => (
             <Route path="/vendors" element={<Vendors />} />
             <Route path="/integration" element={<Integration />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/billing" element={<Billing />} />
             {/* Admin routes */}
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/companies" element={<AdminCompanies />} />
             <Route path="/admin/companies/:companyId" element={<AdminCompanyDetail />} />
             <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/pricing" element={<AdminPricing />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
