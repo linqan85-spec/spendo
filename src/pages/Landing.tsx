@@ -19,9 +19,11 @@ import spendoLogo from "@/assets/spendo-logo.png";
 import spendoLogoFull from "@/assets/spendo-logo-full.png";
 import financeHappy from "@/assets/finance-happy.jpg";
 import { useTranslation } from "react-i18next";
+import { usePricingSettings } from "@/hooks/useSiteSettings";
 
 export default function Landing() {
   const { t } = useTranslation();
+  const { data: pricing } = usePricingSettings();
 
   const problemCards = [
     {
@@ -99,7 +101,8 @@ export default function Landing() {
     },
   ];
 
-  const pricingFeatures = [
+  // Use pricing from database or fallback to translations
+  const pricingFeatures = pricing?.features || [
     t("landing.pricing.features.one"),
     t("landing.pricing.features.two"),
     t("landing.pricing.features.three"),
@@ -108,6 +111,11 @@ export default function Landing() {
     t("landing.pricing.features.six"),
     t("landing.pricing.features.seven"),
   ];
+
+  const displayPrice = pricing?.base_price || 499;
+  const displayExtraUserPrice = pricing?.extra_user_price || 99;
+  const displayCurrency = pricing?.currency || "kr";
+  const displayTrialDays = pricing?.trial_days || 14;
 
   return (
     <div className="min-h-screen bg-background">
@@ -290,11 +298,11 @@ export default function Landing() {
               </CardHeader>
               <CardContent className="text-center">
                 <div className="mb-6">
-                  <span className="text-5xl font-bold">{t("landing.pricing.price")}</span>
-                  <span className="text-muted-foreground"> {t("landing.pricing.per_month")}</span>
+                  <span className="text-5xl font-bold">{displayPrice}</span>
+                  <span className="text-muted-foreground"> {displayCurrency}/mån</span>
                 </div>
                 <p className="text-sm text-muted-foreground mb-6">
-                  {t("landing.pricing.extra_user")}
+                  +{displayExtraUserPrice} {displayCurrency}/extra användare · {displayTrialDays} dagars gratis trial
                 </p>
                 <ul className="text-left space-y-3 mb-8">
                   {pricingFeatures.map((item, i) => (
