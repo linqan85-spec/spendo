@@ -17,5 +17,21 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- HelpPal Chat Widget -->
+    <script>
+      (function() {
+        var script = document.createElement('script');
+        script.src = 'https://msjquyrteoqzryaqtvml.supabase.co/functions/v1/chat-widget-static';
+        script.async = true;
+        script.onload = function() {
+          window.HelpPalChat.init({
+            widgetId: '73d1ed90-8b8f-4f77-9a10-4c2125460a36',
+            apiUrl: 'https://msjquyrteoqzryaqtvml.supabase.co/functions/v1'
+          });
+        };
+        document.head.appendChild(script);
+      })();
+    </script>
   </body>
 </html>
