@@ -292,9 +292,10 @@ export default function AdminCompanies() {
     switch (status) {
       case "trialing":
         const days = getDaysRemaining(trialEndsAt);
+        const daysText = days !== null ? `${days} dagar kvar` : t("admin.companies.status.trial");
         return (
           <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
-            {t("admin.companies.status.trial")} ({days} dagar kvar)
+            {days !== null ? `${t("admin.companies.status.trial")} (${days} dagar kvar)` : t("admin.companies.status.trial")}
           </Badge>
         );
       case "active":
