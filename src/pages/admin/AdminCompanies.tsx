@@ -171,11 +171,23 @@ export default function AdminCompanies() {
 
     try {
       setIsUpdating(true);
-      // Note: archived_at column doesn't exist in companies table currently
-      // This would need a database migration to work
-      console.log("Would archive company:", companyId);
+      const { error } = await supabase
+        .from("companies")
+        .update({ 
+          archived_at: new Date().toISOString(),
+          archived_by: user.id 
+        })
+        .eq("id", companyId);
 
-      setCompanies((prev) => prev.filter((company) => company.id !== companyId));
+      if (error) throw error;
+
+      setCompanies((prev) =>
+        prev.map((company) =>
+          company.id === companyId
+            ? { ...company, archived_at: new Date().toISOString(), archived_by: user.id }
+            : company
+        )
+      );
       setSelectedCompany(null);
     } catch (error) {
       console.error("Error archiving company:", error);
