@@ -11,7 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Building2, Mail, Archive } from "lucide-react";
+import { Building2, Mail, Archive, CreditCard } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
 
 interface CompanyWithStats {
@@ -24,6 +25,10 @@ interface CompanyWithStats {
   user_count?: number;
   archived_at?: string | null;
   archived_by?: string | null;
+  base_price_per_month: number;
+  extra_user_price: number;
+  max_users_included: number;
+  currency: string;
 }
 
 interface CompanyUser {
@@ -236,6 +241,33 @@ export default function AdminCompanies() {
       );
     } catch (error) {
       console.error("Error setting company owner:", error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const updateCompanyPricing = async (
+    companyId: string,
+    field: "base_price_per_month" | "extra_user_price" | "max_users_included",
+    value: number
+  ) => {
+    try {
+      setIsUpdating(true);
+      const { error } = await supabase
+        .from("companies")
+        .update({ [field]: value })
+        .eq("id", companyId);
+
+      if (error) throw error;
+
+      setCompanies((prev) =>
+        prev.map((company) =>
+          company.id === companyId ? { ...company, [field]: value } : company
+        )
+      );
+      setSelectedCompany((prev) => (prev ? { ...prev, [field]: value } : prev));
+    } catch (error) {
+      console.error("Error updating company pricing:", error);
     } finally {
       setIsUpdating(false);
     }
@@ -463,6 +495,82 @@ export default function AdminCompanies() {
                     ))}
                   </div>
                 )}
+              </div>
+
+              <div className="border-t" />
+
+              {/* Pricing Section */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <CreditCard className="h-4 w-4" />
+                  {t("admin.companies.pricing.title")}
+                </h4>
+                <div className="space-y-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">
+                      {t("admin.companies.pricing.base_price")}
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        value={selectedCompany.base_price_per_month}
+                        onChange={(e) =>
+                          updateCompanyPricing(
+                            selectedCompany.id,
+                            "base_price_per_month",
+                            parseInt(e.target.value) || 0
+                          )
+                        }
+                        className="h-8"
+                        disabled={isUpdating}
+                      />
+                      <span className="text-sm text-muted-foreground whitespace-nowrap">
+                        {selectedCompany.currency}/mån
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">
+                      {t("admin.companies.pricing.extra_user")}
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        value={selectedCompany.extra_user_price}
+                        onChange={(e) =>
+                          updateCompanyPricing(
+                            selectedCompany.id,
+                            "extra_user_price",
+                            parseInt(e.target.value) || 0
+                          )
+                        }
+                        className="h-8"
+                        disabled={isUpdating}
+                      />
+                      <span className="text-sm text-muted-foreground whitespace-nowrap">
+                        {selectedCompany.currency}/användare
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">
+                      {t("admin.companies.pricing.users_included")}
+                    </Label>
+                    <Input
+                      type="number"
+                      value={selectedCompany.max_users_included}
+                      onChange={(e) =>
+                        updateCompanyPricing(
+                          selectedCompany.id,
+                          "max_users_included",
+                          parseInt(e.target.value) || 1
+                        )
+                      }
+                      className="h-8"
+                      disabled={isUpdating}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="border-t" />

@@ -109,6 +109,10 @@
   "admin.companies.status.active": "Aktiv",
   "admin.companies.status.past_due": "Förfallen",
   "admin.companies.status.canceled": "Avslutad",
+  "admin.companies.pricing.title": "Prissättning",
+  "admin.companies.pricing.base_price": "Grundpris",
+  "admin.companies.pricing.extra_user": "Extra användare",
+  "admin.companies.pricing.users_included": "Användare inkluderade",
 
   "admin.archived_companies.title": "Arkiverade företag",
   "admin.archived_companies.subtitle": "Företag som är arkiverade",
