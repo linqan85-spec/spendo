@@ -20,6 +20,7 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
     totalCompanies: 0,
+    archivedCompanies: 0,
     activeTrials: 0,
     paidCompanies: 0,
     totalUsers: 0,
@@ -45,7 +46,7 @@ export default function AdminDashboard() {
     try {
       const { data: companiesData, error } = await supabase
         .from("companies")
-        .select("id, subscription_status");
+        .select("id, subscription_status, archived_at");
 
       if (error) throw error;
 
@@ -60,13 +61,16 @@ export default function AdminDashboard() {
         return acc;
       }, {} as Record<string, number>);
 
-      const companiesWithStats = (companiesData || []) as CompanyRecord[];
-      const activeTrials = companiesWithStats.filter((c) => c.subscription_status === "trialing").length;
-      const paidCompanies = companiesWithStats.filter((c) => c.subscription_status === "active").length;
+      const allCompanies = (companiesData || []) as (CompanyRecord & { archived_at: string | null })[];
+      const activeCompanies = allCompanies.filter((c) => !c.archived_at);
+      const archivedCount = allCompanies.length - activeCompanies.length;
+      const activeTrials = activeCompanies.filter((c) => c.subscription_status === "trialing").length;
+      const paidCompanies = activeCompanies.filter((c) => c.subscription_status === "active").length;
       const totalUsers = Object.values(userCounts).reduce((a, b) => a + b, 0);
 
       setStats({
-        totalCompanies: companiesWithStats.length,
+        totalCompanies: activeCompanies.length,
+        archivedCompanies: archivedCount,
         activeTrials,
         paidCompanies,
         totalUsers,
@@ -119,7 +123,12 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalCompanies}</div>
-              <p className="text-xs text-muted-foreground">{t("admin.dashboard.cards.total_companies_hint")}</p>
+              <p className="text-xs text-muted-foreground">
+                {t("admin.dashboard.cards.total_companies_hint")}
+                {stats.archivedCompanies > 0 && (
+                  <span className="block mt-0.5">{stats.archivedCompanies} arkiverade</span>
+                )}
+              </p>
             </CardContent>
           </Card>
 
