@@ -1,6 +1,6 @@
-﻿import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, ExternalLink, RefreshCw, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, ExternalLink, RefreshCw, Trash2, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { IntegrationCard, IntegrationStatus } from "./IntegrationCard";
 import { ConnectFortnoxDialog } from "./ConnectFortnoxDialog";
 import { FortnoxDemoDialog } from "./FortnoxDemoDialog";
@@ -24,6 +24,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 
 interface FortnoxIntegrationProps {
   companyId: string | null;
@@ -39,7 +40,26 @@ interface FortnoxIntegrationProps {
 export function FortnoxIntegration({ companyId, integration, onRefresh }: FortnoxIntegrationProps) {
   const { t } = useTranslation();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const status: IntegrationStatus = (integration?.status as IntegrationStatus) || "inactive";
+
+  // Handle OAuth callback results from URL params
+  useEffect(() => {
+    const fortnoxSuccess = searchParams.get("fortnox_success");
+    const fortnoxError = searchParams.get("fortnox_error");
+
+    if (fortnoxSuccess) {
+      toast.success(t("integrations.fortnox.connect.toast_success"));
+      searchParams.delete("fortnox_success");
+      setSearchParams(searchParams, { replace: true });
+      onRefresh();
+    } else if (fortnoxError) {
+      toast.error(t("integrations.fortnox.toast.oauth_failed", { error: fortnoxError }));
+      searchParams.delete("fortnox_error");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams, onRefresh, t]);
 
   const handleDisconnect = async () => {
     if (!integration) return;
@@ -61,8 +81,42 @@ export function FortnoxIntegration({ companyId, integration, onRefresh }: Fortno
   };
 
   const handleSync = async () => {
+    setIsSyncing(true);
     toast.info(t("integrations.sync.starting"));
-    toast.success(t("integrations.sync.completed_demo"));
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Du måste vara inloggad för att synka.");
+        return;
+      }
+
+      const res = await supabase.functions.invoke("fortnox-sync", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (res.error) {
+        throw new Error(res.error.message || "Sync failed");
+      }
+
+      const result = res.data;
+      toast.success(
+        t("integrations.sync.completed", {
+          invoices: result.invoices_fetched,
+          vendors: result.vendors_created,
+          created: result.expenses_created,
+          updated: result.expenses_updated,
+        })
+      );
+      onRefresh();
+    } catch (err: any) {
+      console.error("Fortnox sync error:", err);
+      toast.error(t("integrations.sync.failed", { error: err.message }));
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const actionButton = status === "inactive" ? (
@@ -76,9 +130,9 @@ export function FortnoxIntegration({ companyId, integration, onRefresh }: Fortno
     )
   ) : (
     <div className="flex gap-2">
-      <Button onClick={handleSync} size="sm" className="gap-1.5">
-        <RefreshCw className="h-3.5 w-3.5" />
-        {t("integrations.sync.button")}
+      <Button onClick={handleSync} size="sm" className="gap-1.5" disabled={isSyncing}>
+        {isSyncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+        {isSyncing ? t("integrations.sync.syncing") : t("integrations.sync.button")}
       </Button>
       <AlertDialog>
         <AlertDialogTrigger asChild>
