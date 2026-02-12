@@ -405,7 +405,10 @@
   "integrations.how_it_works": "Så fungerar det:",
   "integrations.sync.button": "Synka",
   "integrations.sync.starting": "Synkronisering startar...",
+  "integrations.sync.syncing": "Synkar...",
+  "integrations.sync.completed": "Synk klar! {{invoices}} fakturor hämtade, {{vendors}} nya leverantörer, {{created}} nya utgifter, {{updated}} uppdaterade.",
   "integrations.sync.completed_demo": "Synkronisering slutförd (demo)",
+  "integrations.sync.failed": "Synkronisering misslyckades: {{error}}",
   "integrations.sync.unavailable": "Synkfunktionen är inte implementerad än. Data kommer snart synkas automatiskt.",
 
   "integrations.sync_status.title": "Synkstatus",
@@ -461,6 +464,7 @@
   "integrations.fortnox.disconnect.description": "Din befintliga data kommer finnas kvar, men ingen ny data kommer synkas från Fortnox förrän du ansluter igen.",
   "integrations.fortnox.toast.disconnected": "Fortnox har kopplats bort",
   "integrations.fortnox.toast.disconnect_failed": "Kunde inte koppla bort Fortnox",
+  "integrations.fortnox.toast.oauth_failed": "Fortnox-anslutning misslyckades: {{error}}",
 
   "integrations.fortnox.connect.button": "Anslut Fortnox",
   "integrations.fortnox.connect.title": "Anslut Fortnox",

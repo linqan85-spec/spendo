@@ -1,1 +1,10 @@
 project_id = "jbvjzepgltpxwojrnrpo"
+
+[functions.fortnox-callback]
+verify_jwt = false
+
+[functions.fortnox-sync]
+verify_jwt = false
+
+[functions.fortnox-auth-url]
+verify_jwt = false
