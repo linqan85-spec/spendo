@@ -201,6 +201,28 @@ export default function AdminCompanies() {
     }
   };
 
+  const deleteCompany = async (companyId: string) => {
+    const confirmed = window.confirm("Är du säker på att du vill ta bort detta företag permanent? Detta kan inte ångras.");
+    if (!confirmed) return;
+
+    try {
+      setIsUpdating(true);
+      const { error } = await supabase
+        .from("companies")
+        .delete()
+        .eq("id", companyId);
+
+      if (error) throw error;
+
+      setCompanies((prev) => prev.filter((c) => c.id !== companyId));
+      setSelectedCompany(null);
+    } catch (error) {
+      console.error("Error deleting company:", error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const setCompanyOwner = async (companyId: string, userId: string) => {
     const confirmed = window.confirm(t("admin.companies.owner.set"));
     if (!confirmed) return;
@@ -619,16 +641,30 @@ export default function AdminCompanies() {
 
               {/* Danger Zone */}
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-destructive">{t("admin.companies.tab.archive")}</h4>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
-                  disabled={isUpdating}
-                  onClick={() => archiveCompany(selectedCompany.id)}
-                >
-                  {t("admin.companies.archive")}
-                </Button>
+                <h4 className="text-sm font-semibold text-destructive">
+                  {selectedCompany.archived_at ? t("admin.companies.tab.delete") || "Ta bort permanent" : t("admin.companies.tab.archive")}
+                </h4>
+                {selectedCompany.archived_at ? (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="w-full"
+                    disabled={isUpdating}
+                    onClick={() => deleteCompany(selectedCompany.id)}
+                  >
+                    {t("admin.companies.delete") || "Ta bort permanent"}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                    disabled={isUpdating}
+                    onClick={() => archiveCompany(selectedCompany.id)}
+                  >
+                    {t("admin.companies.archive")}
+                  </Button>
+                )}
               </div>
             </div>
           )}
