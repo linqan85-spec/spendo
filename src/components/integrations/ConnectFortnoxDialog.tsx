@@ -32,8 +32,8 @@ export function ConnectFortnoxDialog({ companyId }: ConnectFortnoxDialogProps) {
         throw new Error(res.error?.message || "Could not get auth URL");
       }
 
-      // Redirect to Fortnox OAuth
-      window.location.href = res.data.auth_url;
+      // Open Fortnox OAuth in a new window (iframe CSP blocks it)
+      window.open(res.data.auth_url, "_blank", "noopener,noreferrer");
     } catch (err: any) {
       console.error("Error starting Fortnox OAuth:", err);
       toast.error(t("integrations.fortnox.connect.error_failed"));
