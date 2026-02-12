@@ -62,9 +62,12 @@ export function AppSidebar() {
   const { isSuperAdmin } = useAuth();
   const { t } = useTranslation();
 
-  const primaryNavItems = isSuperAdmin ? adminNavItems : mainNavItems;
-  const secondaryNavItems = isSuperAdmin ? [] : settingsNavItems;
-  const primaryLabel = isSuperAdmin ? t("nav.admin") : t("nav.overview");
+  const isAdminRoute = currentPath.startsWith("/admin");
+  const showAdminNav = isSuperAdmin && isAdminRoute;
+
+  const primaryNavItems = showAdminNav ? adminNavItems : mainNavItems;
+  const secondaryNavItems = showAdminNav ? [] : settingsNavItems;
+  const primaryLabel = showAdminNav ? t("nav.admin") : t("nav.overview");
   const secondaryLabel = t("nav.configuration");
 
   const isActive = (path: string) => {
@@ -178,7 +181,7 @@ export function AppSidebar() {
             </Button>
           </div>
         )}
-        {!collapsed && !isSuperAdmin && (
+        {!collapsed && !showAdminNav && (
           <div className="space-y-2">
             <div className="px-3 py-2">
               <p className="text-xs text-muted-foreground">{t("sidebar.company_placeholder")}</p>
