@@ -694,5 +694,10 @@
   "billing.extra_users": "Extra användare",
   "billing.team_summary": "{{total}} användare totalt ({{included}} inkluderade)",
   "billing.estimated_total": "Uppskattat totalt",
-  "billing.whats_included": "Vad som ingår"
+  "billing.whats_included": "Vad som ingår",
+
+  "paywall.title": "Din provperiod har löpt ut",
+  "paywall.description": "Uppgradera till Spendo Pro för att fortsätta använda alla funktioner. Din data finns kvar och väntar på dig.",
+  "paywall.upgrade_button": "Uppgradera till Pro",
+  "paywall.data_safe": "All din data bevaras och blir tillgänglig direkt efter uppgradering."
 }

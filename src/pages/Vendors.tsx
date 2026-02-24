@@ -1,4 +1,4 @@
-﻿import { AppLayout } from "@/components/layout/AppLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -10,6 +10,8 @@ import { useState, useMemo } from "react";
 import { Search, Building2, Layers, Loader2, Plug, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { PaywallOverlay } from "@/components/PaywallOverlay";
+import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 
 export default function Vendors() {
   const { t } = useTranslation();
@@ -17,8 +19,9 @@ export default function Vendors() {
 
   const { data: vendors = [], isLoading: isLoadingVendors } = useVendors();
   const { data: expenses = [], isLoading: isLoadingExpenses } = useExpenses();
+  const { hasAccess, isLoading: isGateLoading, startCheckout } = useSubscriptionGate();
 
-  const isLoading = isLoadingVendors || isLoadingExpenses;
+  const isLoading = isLoadingVendors || isLoadingExpenses || isGateLoading;
 
   const vendorData = useMemo(() => {
     return vendors
@@ -26,12 +29,7 @@ export default function Vendors() {
         const vendorExpenses = expenses.filter((e) => e.vendor_id === vendor.id);
         const total = vendorExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
         const transactions = vendorExpenses.length;
-
-        return {
-          vendor,
-          total,
-          transactions,
-        };
+        return { vendor, total, transactions };
       })
       .sort((a, b) => b.total - a.total);
   }, [vendors, expenses]);
@@ -55,6 +53,20 @@ export default function Vendors() {
       <AppLayout>
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!hasAccess) {
+    return (
+      <AppLayout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{t("vendors.title")}</h1>
+            <p className="text-muted-foreground">{t("vendors.subtitle")}</p>
+          </div>
+          <PaywallOverlay onUpgrade={startCheckout} />
         </div>
       </AppLayout>
     );

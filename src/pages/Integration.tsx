@@ -1,4 +1,4 @@
-﻿import { AppLayout } from "@/components/layout/AppLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { RefreshCw, Loader2 } from "lucide-react";
 import { KleerIntegration } from "@/components/integrations/KleerIntegration";
@@ -10,14 +10,17 @@ import { Badge } from "@/components/ui/badge";
 import kleerLogo from "@/assets/integrations/kleer-logo.png";
 import fortnoxLogo from "@/assets/integrations/fortnox-logo.ico";
 import { useTranslation } from "react-i18next";
+import { PaywallOverlay } from "@/components/PaywallOverlay";
+import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 
 export default function Integration() {
   const { t } = useTranslation();
   const { companyId, isLoading: isAuthLoading } = useAuth();
   const { integration: kleerIntegration, isLoading: isKleerLoading, refetch: refetchKleer } = useKleerIntegration();
   const { integration: fortnoxIntegration, isLoading: isFortnoxLoading, refetch: refetchFortnox } = useFortnoxIntegration();
+  const { hasAccess, isLoading: isGateLoading, startCheckout } = useSubscriptionGate();
 
-  const isLoading = isAuthLoading || isKleerLoading || isFortnoxLoading;
+  const isLoading = isAuthLoading || isKleerLoading || isFortnoxLoading || isGateLoading;
 
   const isKleerLive = kleerIntegration?.status === "active" && !!kleerIntegration.last_synced_at;
 
@@ -31,6 +34,20 @@ export default function Integration() {
       <AppLayout>
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!hasAccess) {
+    return (
+      <AppLayout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{t("integrations.title")}</h1>
+            <p className="text-muted-foreground">{t("integrations.subtitle")}</p>
+          </div>
+          <PaywallOverlay onUpgrade={startCheckout} />
         </div>
       </AppLayout>
     );
