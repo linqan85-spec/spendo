@@ -37,6 +37,9 @@ export default function Settings() {
   const [isLoadingCompany, setIsLoadingCompany] = useState(true);
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   const [isPortalLoading, setIsPortalLoading] = useState(false);
+  const [companyName, setCompanyName] = useState("");
+  const [orgNumber, setOrgNumber] = useState("");
+  const [isSavingCompany, setIsSavingCompany] = useState(false);
   const [teamUsers, setTeamUsers] = useState<TeamUser[]>([]);
   const [isLoadingTeam, setIsLoadingTeam] = useState(true);
   const [selectedTeamUser, setSelectedTeamUser] = useState<TeamUser | null>(null);
@@ -78,6 +81,8 @@ export default function Settings() {
 
         if (error) throw error;
         setCompany(data as Company);
+        setCompanyName(data.name || "");
+        setOrgNumber(data.org_number || "");
       } catch (error) {
         console.error("Error fetching company:", error);
       } finally {
@@ -163,6 +168,26 @@ export default function Settings() {
       });
     } finally {
       setIsPortalLoading(false);
+    }
+  };
+
+  const handleSaveCompany = async () => {
+    if (!companyId) return;
+    setIsSavingCompany(true);
+    try {
+      const { error } = await supabase
+        .from("companies")
+        .update({ name: companyName, org_number: orgNumber || null })
+        .eq("id", companyId);
+
+      if (error) throw error;
+      toast({ title: t("settings.save_success"), description: t("settings.company_updated") });
+      setCompany((prev) => prev ? { ...prev, name: companyName, org_number: orgNumber || null } : prev);
+    } catch (error) {
+      console.error("Error saving company:", error);
+      toast({ title: t("common.error"), description: t("settings.save_failed"), variant: "destructive" });
+    } finally {
+      setIsSavingCompany(false);
     }
   };
 
@@ -281,13 +306,16 @@ export default function Settings() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="company-name">{t("settings.company_name")}</Label>
-              <Input id="company-name" defaultValue={company?.name || ""} />
+              <Input id="company-name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="org-number">{t("settings.org_number")}</Label>
-              <Input id="org-number" defaultValue={company?.org_number || ""} placeholder={t("settings.org_number_placeholder")} />
+              <Input id="org-number" value={orgNumber} onChange={(e) => setOrgNumber(e.target.value)} placeholder={t("settings.org_number_placeholder")} />
             </div>
-            <Button>{t("settings.save_changes")}</Button>
+            <Button onClick={handleSaveCompany} disabled={isSavingCompany}>
+              {isSavingCompany && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {t("settings.save_changes")}
+            </Button>
           </CardContent>
         </Card>
 
