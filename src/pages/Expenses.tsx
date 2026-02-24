@@ -1,4 +1,4 @@
-﻿import { AppLayout } from "@/components/layout/AppLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -12,6 +12,8 @@ import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { PaywallOverlay } from "@/components/PaywallOverlay";
+import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 
 export default function Expenses() {
   const { t } = useTranslation();
@@ -22,6 +24,7 @@ export default function Expenses() {
   const { data: expenses = [], isLoading } = useExpenses();
   const { data: manualExpenseCount = 0 } = useManualExpenseCount();
   const addExpense = useAddExpense();
+  const { hasAccess, isLoading: isGateLoading, startCheckout } = useSubscriptionGate();
 
   const filteredExpenses = useMemo(() => {
     return expenses.filter((expense) => {
@@ -66,11 +69,25 @@ export default function Expenses() {
     return new Date(dateStr).toLocaleDateString("sv-SE");
   };
 
-  if (isLoading) {
+  if (isLoading || isGateLoading) {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!hasAccess) {
+    return (
+      <AppLayout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{t("expenses.title")}</h1>
+            <p className="text-muted-foreground">{t("expenses.subtitle")}</p>
+          </div>
+          <PaywallOverlay onUpgrade={startCheckout} />
         </div>
       </AppLayout>
     );
@@ -135,8 +152,7 @@ export default function Expenses() {
               </div>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger className="w-full sm:w-[180px]">
-                  <SelectValue placeholder={t("expenses.filters.category")}
-                  />
+                  <SelectValue placeholder={t("expenses.filters.category")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("expenses.filters.all_categories")}</SelectItem>

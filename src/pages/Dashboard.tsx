@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { CategoryChart } from "@/components/dashboard/CategoryChart";
@@ -8,7 +8,9 @@ import { RecentExpenses } from "@/components/dashboard/RecentExpenses";
 import { MonthSelector } from "@/components/dashboard/MonthSelector";
 import { EmptyDashboard } from "@/components/dashboard/EmptyDashboard";
 import { WelcomeDialog, useWelcomeDialog } from "@/components/onboarding/WelcomeDialog";
+import { PaywallOverlay } from "@/components/PaywallOverlay";
 import { useDashboardData, useAvailableMonths } from "@/hooks/useDashboardData";
+import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 import { Receipt, FileText, Layers, TrendingUp, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -21,8 +23,9 @@ const Index = () => {
   const { data: availableMonths = [], isLoading: isLoadingMonths } = useAvailableMonths();
   const { data: dashboardData, isLoading: isLoadingData } = useDashboardData(selectedYear, selectedMonth);
   const { showWelcome, setShowWelcome } = useWelcomeDialog();
+  const { hasAccess, isLoading: isGateLoading, startCheckout } = useSubscriptionGate();
 
-  const isLoading = isLoadingMonths || isLoadingData;
+  const isLoading = isLoadingMonths || isLoadingData || isGateLoading;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("sv-SE", {
@@ -42,6 +45,20 @@ const Index = () => {
       <AppLayout>
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!hasAccess) {
+    return (
+      <AppLayout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{t("dashboard.title")}</h1>
+            <p className="text-muted-foreground">{t("dashboard.subtitle")}</p>
+          </div>
+          <PaywallOverlay onUpgrade={startCheckout} />
         </div>
       </AppLayout>
     );

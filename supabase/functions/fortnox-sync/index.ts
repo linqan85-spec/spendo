@@ -104,6 +104,35 @@ Deno.serve(async (req) => {
 
     const companyId = profile.company_id;
 
+    // Check subscription status - block sync if trial expired and no active subscription
+    const { data: company } = await supabase
+      .from("companies")
+      .select("subscription_status, trial_ends_at")
+      .eq("id", companyId)
+      .single();
+
+    if (company) {
+      const isTrialing =
+        company.subscription_status === "trialing" &&
+        company.trial_ends_at &&
+        new Date(company.trial_ends_at) > new Date();
+      const isActive = company.subscription_status === "active";
+
+      if (!isTrialing && !isActive) {
+        console.log("Sync blocked: no active subscription or trial expired");
+        return new Response(
+          JSON.stringify({
+            error: "Subscription required",
+            message: "Din provperiod har löpt ut. Uppgradera för att fortsätta synka.",
+          }),
+          {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+    }
+
     // Get Fortnox integration
     const { data: integration, error: intError } = await supabase
       .from("integrations")

@@ -1,4 +1,4 @@
-﻿import { AppLayout } from "@/components/layout/AppLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useVendors, useExpenses } from "@/hooks/useExpensesData";
@@ -6,13 +6,16 @@ import { useMemo } from "react";
 import { Layers, Loader2, Plug, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { PaywallOverlay } from "@/components/PaywallOverlay";
+import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
 
 export default function SaaS() {
   const { t } = useTranslation();
   const { data: vendors = [], isLoading: isLoadingVendors } = useVendors();
   const { data: expenses = [], isLoading: isLoadingExpenses } = useExpenses();
+  const { hasAccess, isLoading: isGateLoading, startCheckout } = useSubscriptionGate();
 
-  const isLoading = isLoadingVendors || isLoadingExpenses;
+  const isLoading = isLoadingVendors || isLoadingExpenses || isGateLoading;
 
   const saasData = useMemo(() => {
     const saasVendors = vendors.filter((v) => v.is_saas);
@@ -50,6 +53,20 @@ export default function SaaS() {
       <AppLayout>
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!hasAccess) {
+    return (
+      <AppLayout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{t("saas.title")}</h1>
+            <p className="text-muted-foreground">{t("saas.subtitle")}</p>
+          </div>
+          <PaywallOverlay onUpgrade={startCheckout} />
         </div>
       </AppLayout>
     );
