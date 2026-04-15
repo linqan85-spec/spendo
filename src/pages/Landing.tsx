@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import spendoLogo from "@/assets/spendo-logo.png";
 import spendoLogoFull from "@/assets/spendo-logo-full.png";
-import heroDashboard from "@/assets/hero-dashboard.jpg";
+import heroOffice from "@/assets/hero-office-60s.jpg";
 import { useTranslation } from "react-i18next";
 import { usePricingSettings } from "@/hooks/useSiteSettings";
 
@@ -174,7 +174,7 @@ export default function Landing() {
       <section className="w-full">
         <div className="relative">
           <img
-            src={heroDashboard}
+            src={heroOffice}
             alt={t("landing.hero.image_alt")}
             className="w-full h-48 md:h-64 lg:h-80 object-cover object-top"
             width={1920}
