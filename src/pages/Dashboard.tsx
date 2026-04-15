@@ -143,6 +143,10 @@ const Index = () => {
           />
         </div>
 
+        {duplicates.length > 0 && (
+          <DuplicateWarnings duplicates={duplicates} />
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <CategoryChart data={categoryBreakdown} />
           <TopVendorsList vendors={topVendors} />
