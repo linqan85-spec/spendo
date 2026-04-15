@@ -71,12 +71,12 @@ export default function Landing() {
 
   const featureGrid = [
     {
-      icon: PieChart,
+      icon: Copy,
       title: t("landing.features.categorization.title"),
       description: t("landing.features.categorization.description"),
     },
     {
-      icon: Layers,
+      icon: Search,
       title: t("landing.features.saas.title"),
       description: t("landing.features.saas.description"),
     },
@@ -86,12 +86,12 @@ export default function Landing() {
       description: t("landing.features.trends.description"),
     },
     {
-      icon: Building2,
+      icon: Layers,
       title: t("landing.features.vendors.title"),
       description: t("landing.features.vendors.description"),
     },
     {
-      icon: FileText,
+      icon: BarChart3,
       title: t("landing.features.reports.title"),
       description: t("landing.features.reports.description"),
     },
