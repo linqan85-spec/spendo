@@ -176,7 +176,7 @@ export default function Landing() {
           <img
             src={heroOffice}
             alt={t("landing.hero.image_alt")}
-            className="w-full h-48 md:h-64 lg:h-80 object-cover object-top"
+            className="w-full h-64 md:h-80 lg:h-[28rem] object-cover object-center"
             width={1920}
             height={640}
           />
