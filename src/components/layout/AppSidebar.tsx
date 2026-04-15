@@ -6,7 +6,7 @@ import {
   Settings,
   ChevronLeft,
   Menu,
-  Layers,
+  Search,
   Shield,
   Users,
   DollarSign,
@@ -37,7 +37,7 @@ import { useTranslation } from "react-i18next";
 const mainNavItems = [
   { titleKey: "nav.dashboard", url: "/dashboard", icon: LayoutDashboard },
   { titleKey: "nav.expenses", url: "/expenses", icon: Receipt },
-  { titleKey: "nav.saas", url: "/saas", icon: Layers },
+  { titleKey: "nav.saas", url: "/saas", icon: Search },
   { titleKey: "nav.vendors", url: "/vendors", icon: Building2 },
 ];
 

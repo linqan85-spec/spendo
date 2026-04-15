@@ -4,6 +4,7 @@ import { KPICard } from "@/components/dashboard/KPICard";
 import { CategoryChart } from "@/components/dashboard/CategoryChart";
 import { TopVendorsList } from "@/components/dashboard/TopVendorsList";
 import { SaaSList } from "@/components/dashboard/SaaSList";
+import { DuplicateWarnings } from "@/components/dashboard/DuplicateWarnings";
 import { RecentExpenses } from "@/components/dashboard/RecentExpenses";
 import { MonthSelector } from "@/components/dashboard/MonthSelector";
 import { EmptyDashboard } from "@/components/dashboard/EmptyDashboard";
@@ -11,6 +12,8 @@ import { WelcomeDialog, useWelcomeDialog } from "@/components/onboarding/Welcome
 import { PaywallOverlay } from "@/components/PaywallOverlay";
 import { useDashboardData, useAvailableMonths } from "@/hooks/useDashboardData";
 import { useSubscriptionGate } from "@/hooks/useSubscriptionGate";
+import { useDuplicateDetector } from "@/hooks/useDuplicateDetector";
+import { useVendors, useExpenses } from "@/hooks/useExpensesData";
 import { Receipt, FileText, Layers, TrendingUp, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -24,6 +27,9 @@ const Index = () => {
   const { data: dashboardData, isLoading: isLoadingData } = useDashboardData(selectedYear, selectedMonth);
   const { showWelcome, setShowWelcome } = useWelcomeDialog();
   const { hasAccess, isLoading: isGateLoading, startCheckout } = useSubscriptionGate();
+  const { data: vendors = [] } = useVendors();
+  const { data: allExpenses = [] } = useExpenses();
+  const duplicates = useDuplicateDetector(vendors, allExpenses);
 
   const isLoading = isLoadingMonths || isLoadingData || isGateLoading;
 
@@ -136,6 +142,10 @@ const Index = () => {
             icon={FileText}
           />
         </div>
+
+        {duplicates.length > 0 && (
+          <DuplicateWarnings duplicates={duplicates} />
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <CategoryChart data={categoryBreakdown} />

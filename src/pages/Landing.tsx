@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import {
   BarChart3,
-  FileText,
+  Search,
   Layers,
   Zap,
   Shield,
@@ -12,12 +12,13 @@ import {
   CheckCircle2,
   ArrowRight,
   Building2,
-  CreditCard,
+  Copy,
   PieChart,
+  AlertTriangle,
 } from "lucide-react";
 import spendoLogo from "@/assets/spendo-logo.png";
 import spendoLogoFull from "@/assets/spendo-logo-full.png";
-import financeHappy from "@/assets/finance-happy.jpg";
+import heroDashboard from "@/assets/hero-dashboard.jpg";
 import { useTranslation } from "react-i18next";
 import { usePricingSettings } from "@/hooks/useSiteSettings";
 
@@ -27,17 +28,17 @@ export default function Landing() {
 
   const problemCards = [
     {
-      icon: FileText,
+      icon: Copy,
       title: t("landing.problem.invoices.title"),
       description: t("landing.problem.invoices.description"),
     },
     {
-      icon: CreditCard,
+      icon: AlertTriangle,
       title: t("landing.problem.saas.title"),
       description: t("landing.problem.saas.description"),
     },
     {
-      icon: PieChart,
+      icon: Search,
       title: t("landing.problem.overview.title"),
       description: t("landing.problem.overview.description"),
     },
@@ -70,12 +71,12 @@ export default function Landing() {
 
   const featureGrid = [
     {
-      icon: PieChart,
+      icon: Copy,
       title: t("landing.features.categorization.title"),
       description: t("landing.features.categorization.description"),
     },
     {
-      icon: Layers,
+      icon: Search,
       title: t("landing.features.saas.title"),
       description: t("landing.features.saas.description"),
     },
@@ -85,12 +86,12 @@ export default function Landing() {
       description: t("landing.features.trends.description"),
     },
     {
-      icon: Building2,
+      icon: Layers,
       title: t("landing.features.vendors.title"),
       description: t("landing.features.vendors.description"),
     },
     {
-      icon: FileText,
+      icon: BarChart3,
       title: t("landing.features.reports.title"),
       description: t("landing.features.reports.description"),
     },
@@ -173,9 +174,11 @@ export default function Landing() {
       <section className="w-full">
         <div className="relative">
           <img
-            src={financeHappy}
+            src={heroDashboard}
             alt={t("landing.hero.image_alt")}
-            className="w-full h-48 md:h-64 lg:h-80 object-cover"
+            className="w-full h-48 md:h-64 lg:h-80 object-cover object-top"
+            width={1920}
+            height={640}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent" />
         </div>
