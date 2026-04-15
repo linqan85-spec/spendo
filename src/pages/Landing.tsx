@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import {
   BarChart3,
-  FileText,
+  Search,
   Layers,
   Zap,
   Shield,
@@ -12,8 +12,9 @@ import {
   CheckCircle2,
   ArrowRight,
   Building2,
-  CreditCard,
+  Copy,
   PieChart,
+  AlertTriangle,
 } from "lucide-react";
 import spendoLogo from "@/assets/spendo-logo.png";
 import spendoLogoFull from "@/assets/spendo-logo-full.png";
@@ -27,17 +28,17 @@ export default function Landing() {
 
   const problemCards = [
     {
-      icon: FileText,
+      icon: Copy,
       title: t("landing.problem.invoices.title"),
       description: t("landing.problem.invoices.description"),
     },
     {
-      icon: CreditCard,
+      icon: AlertTriangle,
       title: t("landing.problem.saas.title"),
       description: t("landing.problem.saas.description"),
     },
     {
-      icon: PieChart,
+      icon: Search,
       title: t("landing.problem.overview.title"),
       description: t("landing.problem.overview.description"),
     },
