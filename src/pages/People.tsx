@@ -132,8 +132,8 @@ export default function People() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Personer</h1>
             <p className="text-muted-foreground">
-              Vem spenderar mest? Koppla kort till personer så gissar Spendo automatiskt — du
-              bekräftar.
+              Vem spenderar mest? Koppla kort till personer så föreslår Spendo automatiskt
+              — du verifierar.
             </p>
           </div>
           <AddMemberButton onAdd={(name, email) => addMember.mutate({ name, email })} />
@@ -142,11 +142,11 @@ export default function People() {
         {/* Honest disclaimer */}
         <Alert>
           <Sparkles className="h-4 w-4" />
-          <AlertTitle>Vi gissar — du bestämmer</AlertTitle>
+          <AlertTitle>Förslag baserat på kortmatchning — du verifierar</AlertTitle>
           <AlertDescription>
-            Spendo försöker matcha utgifter mot personer baserat på kort och sökord. Gissningar
-            visas alltid med en <Badge variant="secondary" className="ml-1">Gissad</Badge> -etikett.
-            Klicka på en person på en utgift för att bekräfta eller ändra.
+            Spendo matchar utgifter mot personer baserat på kortnummer och sökord. Omatchade
+            förslag visas alltid med en <Badge variant="secondary" className="ml-1">Ej verifierad</Badge> -etikett
+            tills någon bekräftat dem. Klicka på en person på en utgift för att verifiera eller ändra.
           </AlertDescription>
         </Alert>
 
@@ -194,7 +194,7 @@ export default function People() {
           <CardHeader>
             <CardTitle>Topplista — vem spenderar mest</CardTitle>
             <CardDescription>
-              Inkluderar både bekräftade tilldelningar och Spendos gissningar.{" "}
+              Inkluderar både verifierade tilldelningar och Spendos förslag.{" "}
               {unassignedCount > 0 && (
                 <span className="text-muted-foreground">
                   ({unassignedCount} utgifter saknar fortfarande person)
@@ -212,8 +212,8 @@ export default function People() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Person</TableHead>
-                    <TableHead>Bekräftade</TableHead>
-                    <TableHead>Gissade</TableHead>
+                    <TableHead>Verifierade</TableHead>
+                    <TableHead>Ej verifierade</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                     <TableHead></TableHead>
                   </TableRow>
@@ -225,7 +225,7 @@ export default function People() {
                       <TableCell>{manualCount}</TableCell>
                       <TableCell>
                         {guessCount > 0 ? (
-                          <Badge variant="secondary">{guessCount} gissad</Badge>
+                          <Badge variant="secondary">{guessCount} ej verifierad</Badge>
                         ) : (
                           "0"
                         )}
@@ -285,7 +285,7 @@ export default function People() {
           <CardContent>
             {cards.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Inga kort ännu. Lägg till ett kort så börjar Spendo gissa automatiskt.
+                Inga kort ännu. Lägg till ett kort så börjar Spendo föreslå matchningar automatiskt.
               </p>
             ) : (
               <Table>
@@ -456,7 +456,7 @@ function CardActionAddCard({
           <DialogTitle>{isEditing ? "Redigera kort" : "Nytt kort"}</DialogTitle>
           <DialogDescription>
             Ju fler sökord, desto bättre matchning. Vi kombinerar sista 4 siffror + sökord
-            för att gissa rätt person.
+            för att föreslå rätt person.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3 py-2">
