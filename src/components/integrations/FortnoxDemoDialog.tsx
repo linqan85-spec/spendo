@@ -101,14 +101,26 @@ function generateDemoExpenses(vendorIds: Record<string, string>, companyId: stri
       currency: "SEK",
     });
 
+    // Figma — TWO different people pay separately (the whole point: shadow SaaS)
     expenses.push({
       company_id: companyId,
       vendor_id: vendorIds["Figma"],
-      amount: 1500,
+      amount: 750,
       category: "saas",
-      description: "Figma Professional",
+      description: "Figma Professional - kort *1234 anna",
       transaction_date: new Date(month.getFullYear(), month.getMonth(), 10).toISOString().split("T")[0],
-      type: "invoice",
+      type: "expense",
+      is_recurring: true,
+      currency: "SEK",
+    });
+    expenses.push({
+      company_id: companyId,
+      vendor_id: vendorIds["Figma"],
+      amount: 750,
+      category: "saas",
+      description: "Figma Pro seat - kort *5678 erik",
+      transaction_date: new Date(month.getFullYear(), month.getMonth(), 11).toISOString().split("T")[0],
+      type: "expense",
       is_recurring: true,
       currency: "SEK",
     });
