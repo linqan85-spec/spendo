@@ -25,6 +25,10 @@ export default function Expenses() {
 
   const { data: expenses = [], isLoading } = useExpenses();
   const { data: manualExpenseCount = 0 } = useManualExpenseCount();
+  const { data: members = [] } = useTeamMembers();
+  const { data: cards = [] } = usePaymentCards();
+  const guesses = useCardGuesses(expenses, cards, members);
+  const assignExpense = useAssignExpense();
   const addExpense = useAddExpense();
   const { hasAccess, isLoading: isGateLoading, startCheckout } = useSubscriptionGate();
 
