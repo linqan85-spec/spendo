@@ -220,6 +220,35 @@ export function FortnoxDemoDialog({ companyId, onSuccess }: FortnoxDemoDialogPro
 
       setProgress("create_expenses");
 
+      // Create demo team members
+      const memberInserts = DEMO_MEMBERS.map((m) => ({
+        company_id: companyId,
+        name: m.name,
+        email: m.email,
+      }));
+      await supabase.from("team_members").insert(memberInserts);
+
+      const { data: allMembers } = await supabase
+        .from("team_members")
+        .select("id, name")
+        .eq("company_id", companyId);
+      const memberIds: Record<string, string> = {};
+      allMembers?.forEach((m) => { memberIds[m.name] = m.id; });
+
+      // Create demo cards
+      const cardInserts = DEMO_CARDS
+        .filter((c) => memberIds[c.member])
+        .map((c) => ({
+          company_id: companyId,
+          member_id: memberIds[c.member],
+          label: c.label,
+          last4: c.last4,
+          match_keywords: c.keywords,
+        }));
+      if (cardInserts.length > 0) {
+        await supabase.from("payment_cards").insert(cardInserts);
+      }
+
       const demoExpenses = generateDemoExpenses(vendorIds, companyId);
 
       const { error: expenseError } = await supabase
