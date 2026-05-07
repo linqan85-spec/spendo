@@ -5,9 +5,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useExpenses, useAddExpense, useManualExpenseCount } from "@/hooks/useExpensesData";
+import { useTeamMembers, usePaymentCards, useAssignExpense } from "@/hooks/useTeamData";
+import { useCardGuesses } from "@/hooks/useCardGuesses";
 import { CATEGORY_LABEL_KEYS, ExpenseCategory } from "@/types/spendo";
 import { useState, useMemo } from "react";
-import { Search, Receipt, FileText, Loader2, Plug, ArrowRight } from "lucide-react";
+import { Search, Receipt, FileText, Loader2, Plug, ArrowRight, Sparkles, Check } from "lucide-react";
 import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -23,6 +25,10 @@ export default function Expenses() {
 
   const { data: expenses = [], isLoading } = useExpenses();
   const { data: manualExpenseCount = 0 } = useManualExpenseCount();
+  const { data: members = [] } = useTeamMembers();
+  const { data: cards = [] } = usePaymentCards();
+  const guesses = useCardGuesses(expenses, cards, members);
+  const assignExpense = useAssignExpense();
   const addExpense = useAddExpense();
   const { hasAccess, isLoading: isGateLoading, startCheckout } = useSubscriptionGate();
 
@@ -189,46 +195,89 @@ export default function Expenses() {
                       <TableHead>{t("expenses.table.vendor")}</TableHead>
                       <TableHead>{t("expenses.table.description")}</TableHead>
                       <TableHead>{t("expenses.table.category")}</TableHead>
-                      <TableHead>{t("expenses.table.type")}</TableHead>
+                      <TableHead>Person</TableHead>
                       <TableHead className="text-right">{t("expenses.table.amount")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredExpenses.map((expense) => (
-                      <TableRow key={expense.id}>
-                        <TableCell className="font-medium">
-                          {formatDate(expense.transaction_date)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {expense.type === "expense" ? (
-                              <Receipt className="h-4 w-4 text-muted-foreground" />
-                            ) : (
-                              <FileText className="h-4 w-4 text-muted-foreground" />
-                            )}
-                            {expense.vendor?.name || t("common.unknown")}
-                          </div>
-                        </TableCell>
-                        <TableCell className="max-w-[200px] truncate">
-                          {expense.description || t("common.none")}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
-                            {t(CATEGORY_LABEL_KEYS[expense.category])}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={expense.type === "expense" ? "secondary" : "default"}
-                          >
-                            {expense.type === "expense" ? t("expenses.type.expense") : t("expenses.type.invoice")}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right font-medium">
-                          {formatCurrency(expense.amount)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {filteredExpenses.map((expense) => {
+                      const guess = guesses.get(expense.id);
+                      const assignedMember =
+                        expense.assigned_member?.name ||
+                        members.find((m) => m.id === expense.assigned_member_id)?.name;
+                      const guessMember = guess
+                        ? members.find((m) => m.id === guess.member_id)
+                        : undefined;
+
+                      return (
+                        <TableRow key={expense.id}>
+                          <TableCell className="font-medium">
+                            {formatDate(expense.transaction_date)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {expense.type === "expense" ? (
+                                <Receipt className="h-4 w-4 text-muted-foreground" />
+                              ) : (
+                                <FileText className="h-4 w-4 text-muted-foreground" />
+                              )}
+                              {expense.vendor?.name || t("common.unknown")}
+                            </div>
+                          </TableCell>
+                          <TableCell className="max-w-[200px] truncate">
+                            {expense.description || t("common.none")}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">
+                              {t(CATEGORY_LABEL_KEYS[expense.category])}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Select
+                                value={expense.assigned_member_id || guess?.member_id || "unassigned"}
+                                onValueChange={(v) =>
+                                  assignExpense.mutate({
+                                    expense_id: expense.id,
+                                    member_id: v === "unassigned" ? null : v,
+                                  })
+                                }
+                              >
+                                <SelectTrigger className="w-[160px] h-8 text-xs">
+                                  <SelectValue placeholder="Otilldelad" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="unassigned">— Otilldelad —</SelectItem>
+                                  {members.map((m) => (
+                                    <SelectItem key={m.id} value={m.id}>
+                                      {m.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              {assignedMember ? (
+                                <Badge variant="default" className="gap-1 text-xs">
+                                  <Check className="h-3 w-3" />
+                                  Bekräftad
+                                </Badge>
+                              ) : guessMember ? (
+                                <Badge
+                                  variant="secondary"
+                                  className="gap-1 text-xs"
+                                  title={guess?.reason}
+                                >
+                                  <Sparkles className="h-3 w-3" />
+                                  Gissad ({guess?.confidence}%)
+                                </Badge>
+                              ) : null}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right font-medium">
+                            {formatCurrency(expense.amount)}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </CardContent>

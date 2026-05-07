@@ -30,6 +30,21 @@ const DEMO_VENDORS = [
   { name: "Figma", is_saas: true, default_category: "saas" as const },
 ];
 
+const DEMO_MEMBERS = [
+  { name: "Anna Bergström", email: "anna@demo.se" },
+  { name: "Erik Lund", email: "erik@demo.se" },
+  { name: "Maria Söder", email: "maria@demo.se" },
+  { name: "Johan Holm", email: "johan@demo.se" },
+  { name: "Lisa Ek", email: "lisa@demo.se" },
+];
+
+const DEMO_CARDS = [
+  { label: "Annas kort", last4: "1234", member: "Anna Bergström", keywords: ["anna", "AB"] },
+  { label: "Eriks kort", last4: "5678", member: "Erik Lund", keywords: ["erik", "EL"] },
+  { label: "Marias kort", last4: "9012", member: "Maria Söder", keywords: ["maria", "MS"] },
+  { label: "Johans kort", last4: "3456", member: "Johan Holm", keywords: ["johan", "JH"] },
+];
+
 type DemoProgress = "create_vendors" | "create_expenses" | "activate" | "";
 
 function generateDemoExpenses(vendorIds: Record<string, string>, companyId: string) {
@@ -86,14 +101,26 @@ function generateDemoExpenses(vendorIds: Record<string, string>, companyId: stri
       currency: "SEK",
     });
 
+    // Figma — TWO different people pay separately (the whole point: shadow SaaS)
     expenses.push({
       company_id: companyId,
       vendor_id: vendorIds["Figma"],
-      amount: 1500,
+      amount: 750,
       category: "saas",
-      description: "Figma Professional",
+      description: "Figma Professional - kort *1234 anna",
       transaction_date: new Date(month.getFullYear(), month.getMonth(), 10).toISOString().split("T")[0],
-      type: "invoice",
+      type: "expense",
+      is_recurring: true,
+      currency: "SEK",
+    });
+    expenses.push({
+      company_id: companyId,
+      vendor_id: vendorIds["Figma"],
+      amount: 750,
+      category: "saas",
+      description: "Figma Pro seat - kort *5678 erik",
+      transaction_date: new Date(month.getFullYear(), month.getMonth(), 11).toISOString().split("T")[0],
+      type: "expense",
       is_recurring: true,
       currency: "SEK",
     });
@@ -192,6 +219,35 @@ export function FortnoxDemoDialog({ companyId, onSuccess }: FortnoxDemoDialogPro
       });
 
       setProgress("create_expenses");
+
+      // Create demo team members
+      const memberInserts = DEMO_MEMBERS.map((m) => ({
+        company_id: companyId,
+        name: m.name,
+        email: m.email,
+      }));
+      await supabase.from("team_members").insert(memberInserts);
+
+      const { data: allMembers } = await supabase
+        .from("team_members")
+        .select("id, name")
+        .eq("company_id", companyId);
+      const memberIds: Record<string, string> = {};
+      allMembers?.forEach((m) => { memberIds[m.name] = m.id; });
+
+      // Create demo cards
+      const cardInserts = DEMO_CARDS
+        .filter((c) => memberIds[c.member])
+        .map((c) => ({
+          company_id: companyId,
+          member_id: memberIds[c.member],
+          label: c.label,
+          last4: c.last4,
+          match_keywords: c.keywords,
+        }));
+      if (cardInserts.length > 0) {
+        await supabase.from("payment_cards").insert(cardInserts);
+      }
 
       const demoExpenses = generateDemoExpenses(vendorIds, companyId);
 

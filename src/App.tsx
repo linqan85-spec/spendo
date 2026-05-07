@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Expenses from "./pages/Expenses";
 import SaaS from "./pages/SaaS";
 import Vendors from "./pages/Vendors";
+import People from "./pages/People";
 import Integration from "./pages/Integration";
 import Settings from "./pages/Settings";
 import Billing from "./pages/Billing";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/expenses" element={<ProtectedRoute><Expenses /></ProtectedRoute>} />
             <Route path="/saas" element={<ProtectedRoute><SaaS /></ProtectedRoute>} />
             <Route path="/vendors" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
+            <Route path="/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
             <Route path="/integration" element={<ProtectedRoute><Integration /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />

@@ -39,6 +39,7 @@ const mainNavItems = [
   { titleKey: "nav.expenses", url: "/expenses", icon: Receipt },
   { titleKey: "nav.saas", url: "/saas", icon: Search },
   { titleKey: "nav.vendors", url: "/vendors", icon: Building2 },
+  { titleKey: "nav.people", url: "/people", icon: Users },
 ];
 
 const settingsNavItems = [
