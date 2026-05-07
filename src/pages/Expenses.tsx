@@ -267,7 +267,7 @@ export default function Expenses() {
                                   title={guess?.reason}
                                 >
                                   <Sparkles className="h-3 w-3" />
-                                  Gissad ({guess?.confidence}%)
+                                  Förslag ({guess?.confidence}%)
                                 </Badge>
                               ) : null}
                             </div>
