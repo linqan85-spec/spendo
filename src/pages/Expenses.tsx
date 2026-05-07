@@ -5,9 +5,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useExpenses, useAddExpense, useManualExpenseCount } from "@/hooks/useExpensesData";
+import { useTeamMembers, usePaymentCards, useAssignExpense } from "@/hooks/useTeamData";
+import { useCardGuesses } from "@/hooks/useCardGuesses";
 import { CATEGORY_LABEL_KEYS, ExpenseCategory } from "@/types/spendo";
 import { useState, useMemo } from "react";
-import { Search, Receipt, FileText, Loader2, Plug, ArrowRight } from "lucide-react";
+import { Search, Receipt, FileText, Loader2, Plug, ArrowRight, Sparkles, Check } from "lucide-react";
 import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
