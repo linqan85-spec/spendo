@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Expenses from "./pages/Expenses";
 import SaaS from "./pages/SaaS";
 import Vendors from "./pages/Vendors";
+import People from "./pages/People";
 import Integration from "./pages/Integration";
 import Settings from "./pages/Settings";
 import Billing from "./pages/Billing";
