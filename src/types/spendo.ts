@@ -110,10 +110,14 @@ export interface Expense {
   is_recurring: boolean;
   source?: ExpenseSource; // Optional - derived from external_id presence
   is_trial_sample?: boolean; // Optional - not in DB schema
+  assigned_member_id?: string | null;
+  assignment_source?: AssignmentSource;
+  assignment_confidence?: number;
   created_at: string;
   updated_at: string;
   // Joined data
   vendor?: Vendor;
+  assigned_member?: TeamMember | null;
 }
 
 export interface MonthlySummary {
