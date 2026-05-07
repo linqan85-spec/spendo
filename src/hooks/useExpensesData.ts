@@ -16,7 +16,8 @@ export function useExpenses() {
         .from("expenses")
         .select(`
           *,
-          vendor:vendors(*)
+          vendor:vendors(*),
+          assigned_member:team_members!expenses_assigned_member_id_fkey(*)
         `)
         .eq("company_id", companyId)
         .order("transaction_date", { ascending: false });
