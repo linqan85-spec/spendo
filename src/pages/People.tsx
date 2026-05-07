@@ -226,7 +226,7 @@ export default function People() {
                   {memberStats.map((stat) => {
                     const isOpen = expandedId === stat.member.id;
                     return (
-                      <>
+                      <FragmentWithKey key={stat.member.id}>
                         <TableRow
                           key={stat.member.id}
                           className="cursor-pointer hover:bg-accent/40"
