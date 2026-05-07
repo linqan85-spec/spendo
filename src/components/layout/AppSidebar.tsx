@@ -11,6 +11,7 @@ import {
   Users,
   DollarSign,
   Wallet,
+  TrendingDown,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -36,6 +37,7 @@ import { useTranslation } from "react-i18next";
 
 const mainNavItems = [
   { titleKey: "nav.dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { titleKey: "nav.savings", url: "/savings", icon: TrendingDown },
   { titleKey: "nav.expenses", url: "/expenses", icon: Receipt },
   { titleKey: "nav.saas", url: "/saas", icon: Search },
   { titleKey: "nav.vendors", url: "/vendors", icon: Building2 },
