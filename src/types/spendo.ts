@@ -5,6 +5,30 @@ export type ExpenseCategory = 'saas' | 'resor' | 'kontor' | 'marknadsforing' | '
 export type IntegrationStatus = 'active' | 'inactive' | 'error';
 export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'canceled' | 'unpaid';
 export type ExpenseSource = 'manual' | 'kleer';
+export type AssignmentSource = 'manual' | 'card_match' | 'guess' | 'unassigned';
+
+export interface TeamMember {
+  id: string;
+  company_id: string;
+  name: string;
+  email: string | null;
+  user_id: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaymentCard {
+  id: string;
+  company_id: string;
+  member_id: string;
+  label: string;
+  last4: string | null;
+  match_keywords: string[];
+  created_at: string;
+  updated_at: string;
+  member?: TeamMember;
+}
 
 // Category label translation keys
 export const CATEGORY_LABEL_KEYS: Record<ExpenseCategory, string> = {
