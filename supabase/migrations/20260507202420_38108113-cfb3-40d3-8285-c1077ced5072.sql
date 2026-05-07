@@ -1,0 +1,1 @@
+ALTER TABLE public.vendors ADD CONSTRAINT vendors_company_normalized_name_key UNIQUE (company_id, normalized_name);
