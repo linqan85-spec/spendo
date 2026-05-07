@@ -103,6 +103,9 @@ export type Database = {
       expenses: {
         Row: {
           amount: number
+          assigned_member_id: string | null
+          assignment_confidence: number
+          assignment_source: Database["public"]["Enums"]["assignment_source"]
           category: Database["public"]["Enums"]["expense_category"]
           company_id: string
           created_at: string
@@ -120,6 +123,9 @@ export type Database = {
         }
         Insert: {
           amount: number
+          assigned_member_id?: string | null
+          assignment_confidence?: number
+          assignment_source?: Database["public"]["Enums"]["assignment_source"]
           category?: Database["public"]["Enums"]["expense_category"]
           company_id: string
           created_at?: string
@@ -137,6 +143,9 @@ export type Database = {
         }
         Update: {
           amount?: number
+          assigned_member_id?: string | null
+          assignment_confidence?: number
+          assignment_source?: Database["public"]["Enums"]["assignment_source"]
           category?: Database["public"]["Enums"]["expense_category"]
           company_id?: string
           created_at?: string
@@ -153,6 +162,13 @@ export type Database = {
           vendor_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "expenses_assigned_member_id_fkey"
+            columns: ["assigned_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "expenses_company_id_fkey"
             columns: ["company_id"]
@@ -301,6 +317,47 @@ export type Database = {
           },
         ]
       }
+      payment_cards: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          label: string
+          last4: string | null
+          match_keywords: string[]
+          member_id: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          label: string
+          last4?: string | null
+          match_keywords?: string[]
+          member_id: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          label?: string
+          last4?: string | null
+          match_keywords?: string[]
+          member_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_cards_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           archived_at: string | null
@@ -411,6 +468,39 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
           value?: Json
+        }
+        Relationships: []
+      }
+      team_members: {
+        Row: {
+          company_id: string
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -548,6 +638,7 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "admin" | "member" | "superadmin"
+      assignment_source: "manual" | "card_match" | "guess" | "unassigned"
       expense_category:
         | "saas"
         | "resor"
@@ -692,6 +783,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["owner", "admin", "member", "superadmin"],
+      assignment_source: ["manual", "card_match", "guess", "unassigned"],
       expense_category: [
         "saas",
         "resor",
