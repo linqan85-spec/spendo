@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, Fragment } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -226,7 +226,7 @@ export default function People() {
                   {memberStats.map((stat) => {
                     const isOpen = expandedId === stat.member.id;
                     return (
-                      <FragmentWithKey key={stat.member.id}>
+                      <Fragment key={stat.member.id}>
                         <TableRow
                           key={stat.member.id}
                           className="cursor-pointer hover:bg-accent/40"
@@ -279,7 +279,7 @@ export default function People() {
                             </TableCell>
                           </TableRow>
                         )}
-                      </>
+                      </Fragment>
                     );
                   })}
                 </TableBody>
