@@ -30,6 +30,21 @@ const DEMO_VENDORS = [
   { name: "Figma", is_saas: true, default_category: "saas" as const },
 ];
 
+const DEMO_MEMBERS = [
+  { name: "Anna Bergström", email: "anna@demo.se" },
+  { name: "Erik Lund", email: "erik@demo.se" },
+  { name: "Maria Söder", email: "maria@demo.se" },
+  { name: "Johan Holm", email: "johan@demo.se" },
+  { name: "Lisa Ek", email: "lisa@demo.se" },
+];
+
+const DEMO_CARDS = [
+  { label: "Annas kort", last4: "1234", member: "Anna Bergström", keywords: ["anna", "AB"] },
+  { label: "Eriks kort", last4: "5678", member: "Erik Lund", keywords: ["erik", "EL"] },
+  { label: "Marias kort", last4: "9012", member: "Maria Söder", keywords: ["maria", "MS"] },
+  { label: "Johans kort", last4: "3456", member: "Johan Holm", keywords: ["johan", "JH"] },
+];
+
 type DemoProgress = "create_vendors" | "create_expenses" | "activate" | "";
 
 function generateDemoExpenses(vendorIds: Record<string, string>, companyId: string) {
