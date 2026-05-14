@@ -190,7 +190,7 @@ export default function Landing() {
               className="w-full h-64 md:h-80 lg:h-[28rem] object-cover object-center"
               width={1920}
               height={640}
-              fetchpriority="high"
+              fetchPriority="high"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent" />
           </div>
