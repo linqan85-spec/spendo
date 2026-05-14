@@ -2,6 +2,7 @@ import './i18n';
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { HelmetProvider } from "react-helmet-async";
 
 // Prevent a third-party HelpPal widget domain-authorization error from blanking the app.
 // (The widget is loaded in index.html and calls an external Supabase edge function.)
@@ -92,6 +93,7 @@ const setupHelpPalErrorGuards = () => {
 setupHelpPalErrorGuards();
 
 createRoot(document.getElementById("root")!).render(
-  <App />
+  <HelmetProvider>
+    <App />
+  </HelmetProvider>
 );
-
