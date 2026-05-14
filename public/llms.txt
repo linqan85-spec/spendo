@@ -1,0 +1,20 @@
+# Spendo
+
+> Spendo är en svensk utgiftsanalysplattform för företag. Vi hjälper ekonomiavdelningar och ledning att få full kontroll på företagets återkommande utgifter, hitta dubbletter och onödiga SaaS-licenser, samt upptäcka shadow IT innan det blir dyrt.
+
+Spendo kopplas till befintliga ekonomisystem som Fortnox och Kleer för att automatiskt importera fakturor och transaktioner. Utan manuell administration identifierar plattformen leverantörer, upptäcker återkommande betalningar och flaggar potentiella besparingar — alltifrån dubbla SaaS-licenser till oanvända tjänster.
+
+## Sidor
+
+- [/](/): Startsida — produktpresentation, funktioner och prissättning.
+- [/login](/login): Logga in på befintligt Spendo-konto.
+- [/register](/register): Skapa nytt företagskonto och starta en kostnadsfri provperiod.
+
+## Funktioner
+
+- Automatisk import från Fortnox och Kleer
+- SaaS-spårning och återkommande utgiftsanalys
+- Dubblettdetektering och besparingsförslag
+- Personbaserad utgiftsuppföljning
+- Kategorisering och trendanalys
+- PDF-rapporter och schemalagda utskick
